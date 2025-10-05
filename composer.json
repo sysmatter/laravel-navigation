@@ -1,0 +1,64 @@
+{
+  "name": "sysmatter/laravel-navigation",
+  "description": "Configurable navigation package for Laravel with breadcrumbs and tree generation",
+  "type": "library",
+  "license": "MIT",
+  "scripts": {
+    "test": "pest",
+    "test-coverage": "pest --coverage",
+    "test-unit": "pest tests/Unit",
+    "test-feature": "pest tests/Feature",
+    "phpstan": "php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=512M",
+    "phpstan-baseline": "php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.neon --generate-baseline --memory-limit=512M",
+    "pint": "vendor/bin/pint ./src ./tests"
+  },
+  "require": {
+    "php": "^8.2|^8.3|^8.4",
+    "illuminate/support": "^11.0|^12.0",
+    "illuminate/routing": "^11.0|^12.0"
+  },
+  "require-dev": {
+    "pestphp/pest": "^3.0",
+    "orchestra/testbench": "^9.0|^10.0",
+    "laravel/pint": "^1.25",
+    "phpstan/phpstan": "^2.1",
+    "larastan/larastan": "^3.7",
+    "phpstan/extension-installer": "^1.4",
+    "phpstan/phpstan-phpunit": "^2.0",
+    "laravel/wayfinder": "^0.1.12",
+    "pestphp/pest-plugin-laravel": "^3.2",
+    "phpunit/phpunit": "^11.5",
+    "captainhook/captainhook": "^5.25",
+    "captainhook/plugin-composer": "^5.3"
+  },
+  "suggest": {
+    "laravel/wayfinder": "Optional integration for automatic route-based navigation"
+  },
+  "autoload": {
+    "psr-4": {
+      "SysMatter\\Navigation\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "SysMatter\\Navigation\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "SysMatter\\Navigation\\NavigationServiceProvider"
+      ],
+      "aliases": {
+        "Navigation": "SysMatter\\Navigation\\Facades\\Navigation"
+      }
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true,
+      "phpstan/extension-installer": true,
+      "captainhook/plugin-composer": true
+    }
+  }
+}
