@@ -36,7 +36,9 @@ class IconCompiler
             $response = Http::get($url);
 
             if ($response->successful()) {
-                return $response->body();
+                $svg = $response->body();
+
+                return preg_replace('/<svg/', '<svg data-slot="icon"', $svg, 1);
             }
         } catch (Exception $e) {
             return null;
