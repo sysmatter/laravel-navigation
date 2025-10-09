@@ -28,6 +28,14 @@ it('generates breadcrumbs for nested route', function () {
         ->and($breadcrumbs[1]['route'])->toBe('users.roles.index');
 });
 
+it('includes node ids in breadcrumbs', function () {
+    $navigation = new Navigation('main', $this->config['navigations']['main'], $this->iconCompiler);
+    $breadcrumbs = $navigation->getBreadcrumbs('users.roles.index');
+
+    expect($breadcrumbs[0]['id'])->toBe('breadcrumb-main-0-1')
+        ->and($breadcrumbs[1]['id'])->toBe('breadcrumb-main-1-1');
+});
+
 it('generates breadcrumbs with route parameters', function () {
     $items = [
         [

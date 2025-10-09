@@ -181,14 +181,15 @@ class Navigation
      * @param array<string, mixed> $routeParams
      */
     protected function findBreadcrumbPath(
-        array  $items,
+        array $items,
         string $targetRoute,
-        array  $currentPath,
-        array  &$breadcrumbs,
-        array  $routeParams = []
+        array $currentPath,
+        array &$breadcrumbs,
+        array $routeParams = []
     ): bool {
-        foreach ($items as $item) {
+        foreach ($items as $index => $item) {
             $currentItem = [
+                'id' => $this->generateBreadcrumbId($currentPath, $index),
                 'label' => $item['label'],
             ];
 
@@ -216,5 +217,14 @@ class Navigation
         }
 
         return false;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $currentPath
+     */
+    protected function generateBreadcrumbId(array $currentPath, int $index): string
+    {
+        $depth = count($currentPath);
+        return "breadcrumb-{$this->name}-{$depth}-{$index}";
     }
 }
