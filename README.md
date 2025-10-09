@@ -328,8 +328,8 @@ Validating navigation: main
 
 ```yaml
 # .github/workflows/tests.yml
-- name: Validate Navigation
-  run: php artisan navigation:validate
+-   name: Validate Navigation
+    run: php artisan navigation:validate
 ```
 
 ## Advanced Features

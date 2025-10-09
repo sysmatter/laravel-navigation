@@ -23,7 +23,7 @@ respectful and constructive in all interactions.
 
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/YOUR-USERNAME/laravel-navigation.git
+   git clone https://github.com/sysmatter/laravel-navigation.git
    cd laravel-navigation
    ```
 

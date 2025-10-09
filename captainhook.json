@@ -7,7 +7,7 @@
     "enabled": true,
     "actions": [
       {
-        "action": "composer phpstan"
+        "action": "composer analyse"
       },
       {
         "action": "composer pint"
