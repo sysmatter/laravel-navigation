@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/sysmatter/laravel-navigation/compare/v1.1.0...v1.1.1) (2025-10-09)
+
+
+### Miscellaneous Chores
+
+* updates to improve repo health ([#6](https://github.com/sysmatter/laravel-navigation/issues/6)) ([611a4ac](https://github.com/sysmatter/laravel-navigation/commit/611a4acb909cd334d06c0aac5808672b23f8a05e))
+
 ## [1.1.0](https://github.com/sysmatter/laravel-navigation/compare/v1.0.0...v1.1.0) (2025-10-06)
 
 ### Features
