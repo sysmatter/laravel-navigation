@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/sysmatter/laravel-navigation/compare/v1.1.1...v1.2.0) (2025-10-09)
+
+
+### Features
+
+* add ids to breadcrumb nodes ([#8](https://github.com/sysmatter/laravel-navigation/issues/8)) ([409f886](https://github.com/sysmatter/laravel-navigation/commit/409f8868c3ae0373f03497510a31c9453f55a860))
+
 ## [1.1.1](https://github.com/sysmatter/laravel-navigation/compare/v1.1.0...v1.1.1) (2025-10-09)
 
 
