@@ -1,78 +1,78 @@
 {
-  "name": "sysmatter/laravel-navigation",
-  "description": "Configurable navigation package for Laravel with breadcrumbs and tree generation",
-  "type": "library",
-  "license": "MIT",
-  "homepage": "https://github.com/sysmatter/laravel-navigation",
-  "keywords": [
-    "laravel",
-    "navigation",
-    "nav",
-    "wayfinder"
-  ],
-  "authors": [
-    {
-      "name": "Shavonn Brown",
-      "email": "shavonn@sysmatter.com",
-      "role": "Developer"
+    "name": "sysmatter/laravel-navigation",
+    "description": "Configurable navigation package for Laravel with breadcrumbs and tree generation",
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://github.com/sysmatter/laravel-navigation",
+    "keywords": [
+        "laravel",
+        "navigation",
+        "nav",
+        "wayfinder"
+    ],
+    "authors": [
+        {
+            "name": "Shavonn Brown",
+            "email": "shavonn@sysmatter.com",
+            "role": "Developer"
+        }
+    ],
+    "scripts": {
+        "test": "pest",
+        "test-coverage": "pest --coverage",
+        "test-unit": "pest tests/Unit",
+        "test-feature": "pest tests/Feature",
+        "analyse": "php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=512M",
+        "analyse-baseline": "php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.neon --generate-baseline --memory-limit=512M",
+        "pint": "vendor/bin/pint ./src ./tests ./config"
+    },
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "*",
+        "illuminate/routing": "*"
+    },
+    "require-dev": {
+        "larastan/larastan": "*",
+        "laravel/pint": "*",
+        "laravel/wayfinder": "*",
+        "orchestra/testbench": "*",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.2",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "phpunit/phpunit": "^11.5",
+        "captainhook/captainhook": "^5.25",
+        "captainhook/plugin-composer": "^5.3"
+    },
+    "suggest": {
+        "laravel/wayfinder": "Optional integration for automatic route-based navigation"
+    },
+    "autoload": {
+        "psr-4": {
+            "SysMatter\\Navigation\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SysMatter\\Navigation\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "SysMatter\\Navigation\\NavigationServiceProvider"
+            ],
+            "aliases": {
+                "Navigation": "SysMatter\\Navigation\\Facades\\Navigation"
+            }
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true,
+            "captainhook/plugin-composer": true
+        }
     }
-  ],
-  "scripts": {
-    "test": "pest",
-    "test-coverage": "pest --coverage",
-    "test-unit": "pest tests/Unit",
-    "test-feature": "pest tests/Feature",
-    "analyse": "php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=512M",
-    "analyse-baseline": "php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.neon --generate-baseline --memory-limit=512M",
-    "pint": "vendor/bin/pint ./src ./tests ./config"
-  },
-  "require": {
-    "php": "^8.2",
-    "illuminate/support": "*",
-    "illuminate/routing": "*"
-  },
-  "require-dev": {
-    "larastan/larastan": "*",
-    "laravel/pint": "*",
-    "laravel/wayfinder": "*",
-    "orchestra/testbench": "*",
-    "pestphp/pest": "^3.0",
-    "pestphp/pest-plugin-laravel": "^3.2",
-    "phpstan/extension-installer": "^1.4",
-    "phpstan/phpstan": "^2.1",
-    "phpstan/phpstan-phpunit": "^2.0",
-    "phpunit/phpunit": "^11.5",
-    "captainhook/captainhook": "^5.25",
-    "captainhook/plugin-composer": "^5.3"
-  },
-  "suggest": {
-    "laravel/wayfinder": "Optional integration for automatic route-based navigation"
-  },
-  "autoload": {
-    "psr-4": {
-      "SysMatter\\Navigation\\": "src/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "SysMatter\\Navigation\\Tests\\": "tests/"
-    }
-  },
-  "extra": {
-    "laravel": {
-      "providers": [
-        "SysMatter\\Navigation\\NavigationServiceProvider"
-      ],
-      "aliases": {
-        "Navigation": "SysMatter\\Navigation\\Facades\\Navigation"
-      }
-    }
-  },
-  "config": {
-    "allow-plugins": {
-      "pestphp/pest-plugin": true,
-      "phpstan/extension-installer": true,
-      "captainhook/plugin-composer": true
-    }
-  }
 }

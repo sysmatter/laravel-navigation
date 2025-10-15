@@ -92,28 +92,6 @@ jobs:
       - name: Validate navigation routes
         run: vendor/bin/pest tests/Feature/ValidateCommandTest.php
 
-  code-style:
-    runs-on: ubuntu-latest
-    name: Code Style
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.4
-          extensions: dom, curl, libxml, mbstring, zip
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-interaction
-
-      - name: Check code style (Pint)
-        run: |
-          composer require laravel/pint --dev --no-interaction
-          vendor/bin/pint --test
-
   static-analysis:
     runs-on: ubuntu-latest
     name: Static Analysis

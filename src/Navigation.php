@@ -181,11 +181,11 @@ class Navigation
      * @param array<string, mixed> $routeParams
      */
     protected function findBreadcrumbPath(
-        array $items,
+        array  $items,
         string $targetRoute,
-        array $currentPath,
-        array &$breadcrumbs,
-        array $routeParams = []
+        array  $currentPath,
+        array  &$breadcrumbs,
+        array  $routeParams = []
     ): bool {
         foreach ($items as $index => $item) {
             $currentItem = [

@@ -1,5 +1,10 @@
 # Laravel Navigation
 
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/sysmatter/laravel-navigation.svg?style=flat-square)](https://packagist.org/packages/sysmatter/laravel-navigation)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/sysmatter/laravel-navigation/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/sysmatter/laravel-navigation/actions?query=workflow%3Atests+branch%3Amain)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/sysmatter/laravel-navigation/code-style.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/sysmatter/laravel-navigation/actions?query=workflow%3A"code+style"+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/sysmatter/laravel-navigation.svg?style=flat-square)](https://packagist.org/packages/sysmatter/laravel-navigation)
+
 A powerful, flexible navigation management package for Laravel applications. Define multiple navigation structures with
 breadcrumbs, active state detection, and pre-compiled icons - perfect for React, Inertia.js, and traditional Blade
 applications.
