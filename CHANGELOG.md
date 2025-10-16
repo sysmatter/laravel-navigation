@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/sysmatter/laravel-navigation/compare/v1.4.0...v1.5.0) (2025-10-16)
+
+
+### Features
+
+* add navOnly and breadcrumbOnly options ([#16](https://github.com/sysmatter/laravel-navigation/issues/16)) ([15f4a43](https://github.com/sysmatter/laravel-navigation/commit/15f4a43e5109f0a8ae5e00353ff895c680e3f139))
+
 ## [1.4.0](https://github.com/sysmatter/laravel-navigation/compare/v1.3.0...v1.4.0) (2025-10-16)
 
 ### Features
