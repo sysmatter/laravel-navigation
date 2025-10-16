@@ -89,3 +89,89 @@ it('includes custom attributes', function () {
         ->and($tree[0])->toHaveKey('badge')
         ->and($tree[0]['badge'])->toBe('5');
 });
+
+it('includes type field on all navigation items', function () {
+    $items = [
+        ['label' => 'Dashboard', 'route' => 'dashboard'],
+        ['label' => 'Users', 'route' => 'users.index'],
+    ];
+
+    $navigation = new Navigation('test', $items, $this->iconCompiler);
+    $tree = $navigation->toTree();
+
+    expect($tree[0])->toHaveKey('type')
+        ->and($tree[0]['type'])->toBe('link')
+        ->and($tree[1])->toHaveKey('type')
+        ->and($tree[1]['type'])->toBe('link');
+});
+
+it('handles section type items', function () {
+    $items = [
+        ['label' => 'Dashboard', 'route' => 'dashboard'],
+        ['type' => 'section', 'label' => 'Management'],
+        ['label' => 'Users', 'route' => 'users.index'],
+    ];
+
+    $navigation = new Navigation('test', $items, $this->iconCompiler);
+    $tree = $navigation->toTree();
+
+    expect($tree)->toHaveCount(3)
+        ->and($tree[0]['type'])->toBe('link')
+        ->and($tree[1]['type'])->toBe('section')
+        ->and($tree[1]['label'])->toBe('Management')
+        ->and($tree[1])->not->toHaveKey('url')
+        ->and($tree[1])->not->toHaveKey('isActive')
+        ->and($tree[2]['type'])->toBe('link');
+});
+
+it('handles separator type items', function () {
+    $items = [
+        ['label' => 'Dashboard', 'route' => 'dashboard'],
+        ['type' => 'separator'],
+        ['label' => 'Settings', 'route' => 'settings.index'],
+    ];
+
+    $navigation = new Navigation('test', $items, $this->iconCompiler);
+    $tree = $navigation->toTree();
+
+    expect($tree)->toHaveCount(3)
+        ->and($tree[0]['type'])->toBe('link')
+        ->and($tree[1]['type'])->toBe('separator')
+        ->and($tree[1])->not->toHaveKey('label')
+        ->and($tree[1])->not->toHaveKey('url')
+        ->and($tree[2]['type'])->toBe('link');
+});
+
+it('excludes sections and separators from breadcrumbs', function () {
+    $items = [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'children' => [
+                ['type' => 'section', 'label' => 'Management'],
+                ['label' => 'Users', 'route' => 'users.index'],
+                ['type' => 'separator'],
+                ['label' => 'Settings', 'route' => 'settings.index'],
+            ],
+        ],
+    ];
+
+    $navigation = new Navigation('test', $items, $this->iconCompiler);
+    $breadcrumbs = $navigation->getBreadcrumbs('settings.index');
+
+    // Should only have Dashboard > Settings (skipping section and separator)
+    expect($breadcrumbs)->toHaveCount(2)
+        ->and($breadcrumbs[0]['label'])->toBe('Dashboard')
+        ->and($breadcrumbs[1]['label'])->toBe('Settings');
+});
+
+it('sets default type to link when not specified', function () {
+    $items = [
+        ['label' => 'Dashboard', 'route' => 'dashboard'], // No type specified
+    ];
+
+    $navigation = new Navigation('test', $items, $this->iconCompiler);
+    $tree = $navigation->toTree();
+
+    expect($tree[0]['type'])->toBe('link');
+});
