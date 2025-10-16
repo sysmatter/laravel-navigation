@@ -27,16 +27,31 @@ class NavigationManager
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function breadcrumbs(string $name, ?string $routeName = null): array
+    public function breadcrumbs(?string $name = null, ?string $routeName = null): array
     {
-        $navigation = $this->get($name);
         $routeName = $routeName ?? request()->route()?->getName();
 
         if (!$routeName) {
             return [];
         }
 
-        return $navigation->getBreadcrumbs($routeName);
+        // If specific navigation provided, search only that one
+        if ($name !== null) {
+            $navigation = $this->get($name);
+            return $navigation->getBreadcrumbs($routeName);
+        }
+
+        // Otherwise, search all navigations
+        foreach ($this->config['navigations'] ?? [] as $navName => $items) {
+            $navigation = $this->get($navName);
+            $breadcrumbs = $navigation->getBreadcrumbs($routeName);
+
+            if (!empty($breadcrumbs)) {
+                return $breadcrumbs;
+            }
+        }
+
+        return [];
     }
 
     /**
