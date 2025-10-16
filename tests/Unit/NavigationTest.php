@@ -175,3 +175,89 @@ it('sets default type to link when not specified', function () {
 
     expect($tree[0]['type'])->toBe('link');
 });
+
+it('excludes breadcrumbOnly items from navigation', function () {
+    $items = [
+        ['label' => 'Dashboard', 'route' => 'dashboard'],
+        ['label' => 'Edit User', 'route' => 'users.edit', 'breadcrumbOnly' => true],
+        ['label' => 'Settings', 'route' => 'settings.index'],
+    ];
+
+    $navigation = new Navigation('test', $items, $this->iconCompiler);
+    $tree = $navigation->toTree();
+
+    expect($tree)->toHaveCount(2)
+        ->and($tree[0]['label'])->toBe('Dashboard')
+        ->and($tree[1]['label'])->toBe('Settings');
+});
+
+it('includes breadcrumbOnly items in breadcrumbs', function () {
+    $items = [
+        [
+            'label' => 'Users',
+            'route' => 'users.index',
+            'children' => [
+                ['label' => 'Edit User', 'route' => 'users.edit', 'breadcrumbOnly' => true],
+            ],
+        ],
+    ];
+
+    $navigation = new Navigation('test', $items, $this->iconCompiler);
+    $breadcrumbs = $navigation->getBreadcrumbs('users.edit');
+
+    expect($breadcrumbs)->toHaveCount(2)
+        ->and($breadcrumbs[0]['label'])->toBe('Users')
+        ->and($breadcrumbs[1]['label'])->toBe('Edit User');
+});
+
+it('excludes navOnly items from breadcrumbs', function () {
+    $items = [
+        [
+            'label' => 'Admin',
+            'route' => 'dashboard',
+            'navOnly' => true,
+            'children' => [
+                ['label' => 'Users', 'route' => 'users.index'],
+            ],
+        ],
+    ];
+
+    $navigation = new Navigation('test', $items, $this->iconCompiler);
+    $breadcrumbs = $navigation->getBreadcrumbs('users.index');
+
+    // Should only have "Users", not "Admin"
+    expect($breadcrumbs)->toHaveCount(1)
+        ->and($breadcrumbs[0]['label'])->toBe('Users');
+});
+
+it('includes navOnly items in navigation', function () {
+    $items = [
+        ['label' => 'Dashboard', 'route' => 'dashboard'],
+        ['label' => 'Admin Section', 'route' => 'dashboard', 'navOnly' => true],
+    ];
+
+    $navigation = new Navigation('test', $items, $this->iconCompiler);
+    $tree = $navigation->toTree();
+
+    expect($tree)->toHaveCount(2)
+        ->and($tree[1]['label'])->toBe('Admin Section');
+});
+
+it('does not include navOnly and breadcrumbOnly in output', function () {
+    $items = [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'navOnly' => true,
+            'customAttr' => 'value',
+        ],
+    ];
+
+    $navigation = new Navigation('test', $items, $this->iconCompiler);
+    $tree = $navigation->toTree();
+
+    expect($tree[0])->not->toHaveKey('navOnly')
+        ->and($tree[0])->not->toHaveKey('breadcrumbOnly')
+        ->and($tree[0])->toHaveKey('customAttr')
+        ->and($tree[0]['customAttr'])->toBe('value');
+});

@@ -612,6 +612,83 @@ Sections and separators are automatically excluded from breadcrumbs and output w
 ]
 ```
 
+### Navigation and Breadcrumb Visibility Control
+
+Control where navigation items appear with `navOnly` and `breadcrumbOnly`:
+
+```php
+'navigations' => [
+    'main' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'children' => [
+                ['label' => 'Overview', 'route' => 'dashboard.overview'],
+                
+                // Hidden from main nav, only appears in breadcrumbs
+                [
+                    'label' => 'Edit Dashboard',
+                    'route' => 'dashboard.edit',
+                    'breadcrumbOnly' => true,
+                ],
+            ],
+        ],
+        
+        // Shown in nav but excluded from breadcrumb trail
+        [
+            'label' => 'Admin Section',
+            'route' => 'admin.index',
+            'navOnly' => true,
+            'children' => [
+                ['label' => 'Users', 'route' => 'admin.users'],
+                ['label' => 'Settings', 'route' => 'admin.settings'],
+            ],
+        ],
+    ],
+],
+```
+
+**Use Cases:**
+
+- `breadcrumbOnly` - Perfect for edit/create pages that shouldn't clutter your main navigation
+- `navOnly` - Ideal for grouping/section items that provide structure in navigation but would be redundant in
+  breadcrumbs
+
+**Example: Edit Pages**
+
+```php
+[
+    'label' => 'Users',
+    'route' => 'users.index',
+    'children' => [
+        ['label' => 'All Users', 'route' => 'users.index'],
+        ['label' => 'Edit User', 'route' => 'users.edit', 'breadcrumbOnly' => true],
+        ['label' => 'Create User', 'route' => 'users.create', 'breadcrumbOnly' => true],
+    ],
+]
+```
+
+The navigation will show only "All Users", but breadcrumbs will display:
+
+```
+Users > Edit User
+```
+
+**Example: Navigation Sections**
+
+```php
+[
+    'label' => 'Administration',
+    'route' => 'admin.index',
+    'navOnly' => true,  // Don't include in breadcrumbs
+    'children' => [
+        ['label' => 'Manage Users', 'route' => 'admin.users'],
+    ],
+]
+```
+
+Breadcrumbs will show only "Manage Users" without the redundant "Administration" parent.
+
 ## Middleware Integration
 
 Share navigation with all Inertia requests:
@@ -652,18 +729,20 @@ With coverage:
 
 ### Navigation Item Options
 
-| Option     | Type           | Description                                              |
-|------------|----------------|----------------------------------------------------------|
-| `type`     | string         | Item type: `'link'`, `'section'`, or `'separator'`       |
-| `label`    | string         | Display text for the item                                |
-| `route`    | string         | Laravel route name (e.g., `users.index`)                 |
-| `url`      | string         | External URL (alternative to `route`)                    |
-| `method`   | string         | HTTP method for actions (`post`, `delete`, etc.)         |
-| `icon`     | string         | Lucide icon name (e.g., `home`, `users`)                 |
-| `children` | array          | Nested navigation items                                  |
-| `visible`  | bool\|callable | Controls visibility (static or dynamic)                  |
-| `can`      | string\|array  | Gate/policy check (`'ability'` or `['ability', $model]`) |
-| *custom*   | mixed          | Any custom attributes you want to include                |
+| Option           | Type           | Description                                              |
+|------------------|----------------|----------------------------------------------------------|
+| `type`           | string         | Item type: `'link'`, `'section'`, or `'separator'`       |
+| `label`          | string         | Display text for the item                                |
+| `route`          | string         | Laravel route name (e.g., `users.index`)                 |
+| `url`            | string         | External URL (alternative to `route`)                    |
+| `method`         | string         | HTTP method for actions (`post`, `delete`, etc.)         |
+| `icon`           | string         | Lucide icon name (e.g., `home`, `users`)                 |
+| `children`       | array          | Nested navigation items                                  |
+| `visible`        | bool\|callable | Controls visibility (static or dynamic)                  |
+| `can`            | string\|array  | Gate/policy check (`'ability'` or `['ability', $model]`) |
+| `breadcrumbOnly` | bool           | Only show in breadcrumbs, hide from navigation           |
+| `navOnly`        | bool           | Only show in navigation, hide from breadcrumbs           |
+| *custom*         | mixed          | Any custom attributes you want to include                |
 
 ### Config Options
 
