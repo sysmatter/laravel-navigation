@@ -127,6 +127,9 @@ Generate breadcrumbs from the current route:
 
 ```php
 // Auto-detect current route
+$breadcrumbs = Navigation::breadcrumbs();
+
+// Specify nav tree to find current route in
 $breadcrumbs = Navigation::breadcrumbs('main');
 
 // Or specify a route
