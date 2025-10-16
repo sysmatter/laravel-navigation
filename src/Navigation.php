@@ -54,31 +54,7 @@ class Navigation
         $currentRoute = request()->route()?->getName();
 
         foreach ($items as $index => $item) {
-            $id = $parentId ? "{$parentId}-{$index}" : "nav-{$this->name}-{$index}";
-
-            // Get type, default to 'link'
-            $type = $item['type'] ?? 'link';
-
-            // Handle sections
-            if ($type === 'section') {
-                $tree[] = [
-                    'id' => $id,
-                    'type' => 'section',
-                    'label' => $item['label'],
-                ];
-                continue;
-            }
-
-            // Handle separators
-            if ($type === 'separator') {
-                $tree[] = [
-                    'id' => $id,
-                    'type' => 'separator',
-                ];
-                continue;
-            }
-
-            // Handle conditional visibility
+            // Handle conditional visibility first - if not visible, skip everything else
             if (isset($item['visible'])) {
                 if (is_callable($item['visible'])) {
                     if (!$item['visible']()) {
@@ -111,6 +87,33 @@ class Navigation
 
             $id = $parentId ? "{$parentId}-{$index}" : "nav-{$this->name}-{$index}";
 
+            // Get type, default to 'link'
+            $type = $item['type'] ?? 'link';
+
+            // Skip items marked as breadcrumb-only in navigation
+            if (isset($item['breadcrumbOnly']) && $item['breadcrumbOnly']) {
+                continue;
+            }
+
+            // Handle sections
+            if ($type === 'section') {
+                $tree[] = [
+                    'id' => $id,
+                    'type' => 'section',
+                    'label' => $item['label'],
+                ];
+                continue;
+            }
+
+            // Handle separators
+            if ($type === 'separator') {
+                $tree[] = [
+                    'id' => $id,
+                    'type' => 'separator',
+                ];
+                continue;
+            }
+
             $node = [
                 'id' => $id,
                 'type' => 'link',
@@ -138,7 +141,7 @@ class Navigation
 
             // Add any custom attributes (excluding internal ones)
             foreach ($item as $key => $value) {
-                if (!in_array($key, ['label', 'route', 'url', 'method', 'icon', 'children', 'visible', 'can', 'type'])) {
+                if (!in_array($key, ['label', 'route', 'url', 'method', 'icon', 'children', 'visible', 'can', 'type', 'breadcrumbOnly', 'navOnly'])) {
                     $node[$key] = $value;
                 }
             }
@@ -213,6 +216,17 @@ class Navigation
         array  $routeParams = []
     ): bool {
         foreach ($items as $index => $item) {
+            // Skip items marked as nav-only in breadcrumbs
+            if (isset($item['navOnly']) && $item['navOnly']) {
+                // Still check children
+                if (isset($item['children']) && is_array($item['children'])) {
+                    if ($this->findBreadcrumbPath($item['children'], $targetRoute, $currentPath, $breadcrumbs, $routeParams)) {
+                        return true;
+                    }
+                }
+                continue;
+            }
+
             $type = $item['type'] ?? 'link';
             if (in_array($type, ['section', 'separator'])) {
                 // Still check children if they exist

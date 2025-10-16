@@ -2,10 +2,10 @@
 
 ## [1.4.0](https://github.com/sysmatter/laravel-navigation/compare/v1.3.0...v1.4.0) (2025-10-16)
 
-
 ### Features
 
-* add section labels and types for presentation ([#14](https://github.com/sysmatter/laravel-navigation/issues/14)) ([66da04d](https://github.com/sysmatter/laravel-navigation/commit/66da04d01c9459f90cca66cd107a126f886caa95))
+* add section labels and types for
+  presentation ([#14](https://github.com/sysmatter/laravel-navigation/issues/14)) ([66da04d](https://github.com/sysmatter/laravel-navigation/commit/66da04d01c9459f90cca66cd107a126f886caa95))
 
 ## [1.3.0](https://github.com/sysmatter/laravel-navigation/compare/v1.2.1...v1.3.0) (2025-10-16)
 
