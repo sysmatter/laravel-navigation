@@ -193,12 +193,13 @@ import {Link} from '@inertiajs/react';
 
 interface NavigationItem {
     id: string;
-    label: string;
-    url: string;
+    type: 'link' | 'section' | 'separator';
+    label?: string;
+    url?: string;
     method?: string;
-    isActive: boolean;
+    isActive?: boolean;
     icon?: string;
-    children: NavigationItem[];
+    children?: NavigationItem[];
 }
 
 export default function Navigation({items}: { items: NavigationItem[] }) {
@@ -546,6 +547,71 @@ Define items that trigger POST/DELETE requests:
 ],
 ```
 
+### Sections and Separators
+
+Organize your navigation with visual sections and dividers:
+
+```php
+'navigations' => [
+    'main' => [
+        ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'home'],
+        
+        // Section header
+        ['type' => 'section', 'label' => 'Management'],
+        
+        ['label' => 'Users', 'route' => 'users.index', 'icon' => 'users'],
+        ['label' => 'Teams', 'route' => 'teams.index', 'icon' => 'users-2'],
+        
+        // Visual separator
+        ['type' => 'separator'],
+        
+        ['label' => 'Settings', 'route' => 'settings.index', 'icon' => 'settings'],
+        ['label' => 'Logout', 'route' => 'logout', 'method' => 'post', 'icon' => 'log-out'],
+    ],
+],
+```
+
+**Types:**
+
+- `'link'` - Regular navigation item (default)
+- `'section'` - Section header for grouping items
+- `'separator'` - Visual divider between items
+
+**React Example:**
+
+```tsx
+{
+    navigation.map((item) => {
+        if (item.type === 'section') {
+            return (
+
+                {item.label}
+
+            );
+        }
+
+        if (item.type === 'separator') {
+            return;
+        }
+
+        // Regular link rendering
+        return {item.label};
+    })
+}
+```
+
+Sections and separators are automatically excluded from breadcrumbs and output with appropriate structure:
+
+```php
+[
+    ['id' => 'nav-main-0', 'type' => 'link', 'label' => 'Dashboard', ...],
+    ['id' => 'nav-main-1', 'type' => 'section', 'label' => 'Management'],
+    ['id' => 'nav-main-2', 'type' => 'link', 'label' => 'Users', ...],
+    ['id' => 'nav-main-3', 'type' => 'separator'],
+    // ...
+]
+```
+
 ## Middleware Integration
 
 Share navigation with all Inertia requests:
@@ -588,6 +654,7 @@ With coverage:
 
 | Option     | Type           | Description                                              |
 |------------|----------------|----------------------------------------------------------|
+| `type`     | string         | Item type: `'link'`, `'section'`, or `'separator'`       |
 | `label`    | string         | Display text for the item                                |
 | `route`    | string         | Laravel route name (e.g., `users.index`)                 |
 | `url`      | string         | External URL (alternative to `route`)                    |

@@ -54,6 +54,30 @@ class Navigation
         $currentRoute = request()->route()?->getName();
 
         foreach ($items as $index => $item) {
+            $id = $parentId ? "{$parentId}-{$index}" : "nav-{$this->name}-{$index}";
+
+            // Get type, default to 'link'
+            $type = $item['type'] ?? 'link';
+
+            // Handle sections
+            if ($type === 'section') {
+                $tree[] = [
+                    'id' => $id,
+                    'type' => 'section',
+                    'label' => $item['label'],
+                ];
+                continue;
+            }
+
+            // Handle separators
+            if ($type === 'separator') {
+                $tree[] = [
+                    'id' => $id,
+                    'type' => 'separator',
+                ];
+                continue;
+            }
+
             // Handle conditional visibility
             if (isset($item['visible'])) {
                 if (is_callable($item['visible'])) {
@@ -89,6 +113,7 @@ class Navigation
 
             $node = [
                 'id' => $id,
+                'type' => 'link',
                 'label' => $item['label'],
                 'isActive' => $this->isActive($item, $currentRoute),
                 'children' => [],
@@ -113,7 +138,7 @@ class Navigation
 
             // Add any custom attributes (excluding internal ones)
             foreach ($item as $key => $value) {
-                if (!in_array($key, ['label', 'route', 'url', 'method', 'icon', 'children', 'visible', 'can'])) {
+                if (!in_array($key, ['label', 'route', 'url', 'method', 'icon', 'children', 'visible', 'can', 'type'])) {
                     $node[$key] = $value;
                 }
             }
@@ -188,6 +213,17 @@ class Navigation
         array  $routeParams = []
     ): bool {
         foreach ($items as $index => $item) {
+            $type = $item['type'] ?? 'link';
+            if (in_array($type, ['section', 'separator'])) {
+                // Still check children if they exist
+                if (isset($item['children']) && is_array($item['children'])) {
+                    if ($this->findBreadcrumbPath($item['children'], $targetRoute, $currentPath, $breadcrumbs, $routeParams)) {
+                        return true;
+                    }
+                }
+                continue;
+            }
+
             $currentItem = [
                 'id' => $this->generateBreadcrumbId($currentPath, $index),
                 'label' => $item['label'],
