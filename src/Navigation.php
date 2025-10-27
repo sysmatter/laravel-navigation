@@ -52,6 +52,7 @@ class Navigation
     {
         $tree = [];
         $currentRoute = request()->route()?->getName();
+        $currentRouteParams = request()->route()?->parameters() ?? [];
 
         foreach ($items as $index => $item) {
             // Handle conditional visibility first - if not visible, skip everything else
@@ -118,7 +119,7 @@ class Navigation
                 'id' => $id,
                 'type' => 'link',
                 'label' => $item['label'],
-                'isActive' => $this->isActive($item, $currentRoute),
+                'isActive' => $this->isActive($item, $currentRoute, $currentRouteParams),
                 'children' => [],
             ];
 
@@ -141,7 +142,7 @@ class Navigation
 
             // Add any custom attributes (excluding internal ones)
             foreach ($item as $key => $value) {
-                if (!in_array($key, ['label', 'route', 'url', 'method', 'icon', 'children', 'visible', 'can', 'type', 'breadcrumbOnly', 'navOnly'])) {
+                if (!in_array($key, ['label', 'route', 'url', 'method', 'icon', 'children', 'visible', 'can', 'type', 'breadcrumbOnly', 'navOnly', 'params'])) {
                     $node[$key] = $value;
                 }
             }
@@ -159,16 +160,17 @@ class Navigation
 
     /**
      * @param array<string, mixed> $item
+     * @param array<string, mixed> $currentRouteParams
      */
-    protected function isActive(array $item, ?string $currentRoute): bool
+    protected function isActive(array $item, ?string $currentRoute, array $currentRouteParams = []): bool
     {
         if (!$currentRoute) {
             return false;
         }
 
         if (isset($item['route'])) {
-            // Check if current route matches
-            if ($item['route'] === $currentRoute) {
+            // Check if current route matches with wildcard params
+            if ($this->routeMatches($item['route'], $currentRoute, $item['params'] ?? null, $currentRouteParams)) {
                 return true;
             }
 
@@ -178,16 +180,51 @@ class Navigation
             }
         }
 
-        // Check children
+        // Check children (including breadcrumbOnly items for active state)
         if (isset($item['children'])) {
             foreach ($item['children'] as $child) {
-                if ($this->isActive($child, $currentRoute)) {
+                if ($this->isActive($child, $currentRoute, $currentRouteParams)) {
                     return true;
                 }
             }
         }
 
         return false;
+    }
+
+    /**
+     * Check if a route matches with wildcard parameter support
+     *
+     * @param array<string, mixed>|null $itemParams
+     * @param array<string, mixed> $currentParams
+     */
+    protected function routeMatches(string $itemRoute, string $currentRoute, ?array $itemParams, array $currentParams): bool
+    {
+        if ($itemRoute !== $currentRoute) {
+            return false;
+        }
+
+        // If no params specified, exact route match is enough
+        if ($itemParams === null) {
+            return true;
+        }
+
+        // Check if all wildcard params are present in current params
+        foreach ($itemParams as $key => $value) {
+            if ($value === '*') {
+                // Wildcard - just check the param exists
+                if (!isset($currentParams[$key])) {
+                    return false;
+                }
+            } else {
+                // Exact match required
+                if (!isset($currentParams[$key]) || $currentParams[$key] != $value) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -238,24 +275,36 @@ class Navigation
                 continue;
             }
 
+            // Resolve label (could be string or closure)
+            $label = $this->resolveLabel($item['label'], $routeParams);
+
             $currentItem = [
                 'id' => $this->generateBreadcrumbId($currentPath, $index),
-                'label' => $item['label'],
+                'label' => $label,
             ];
 
             if (isset($item['route'])) {
-                $currentItem['url'] = $this->resolveRoute($item['route'], $routeParams);
                 $currentItem['route'] = $item['route'];
+
+                // For breadcrumb-only items with wildcards, use current route params
+                if (isset($item['breadcrumbOnly']) && $item['breadcrumbOnly'] && isset($item['params'])) {
+                    $resolvedParams = $this->resolveWildcardParams($item['params'], $routeParams);
+                    $currentItem['url'] = $this->resolveRoute($item['route'], $resolvedParams);
+                } else {
+                    $currentItem['url'] = $this->resolveRoute($item['route'], $routeParams);
+                }
             } elseif (isset($item['url'])) {
                 $currentItem['url'] = $item['url'];
             }
 
             $newPath = array_merge($currentPath, [$currentItem]);
 
-            // Check if this is the target
-            if (isset($item['route']) && $item['route'] === $targetRoute) {
-                $breadcrumbs = $newPath;
-                return true;
+            // Check if this is the target (with wildcard support)
+            if (isset($item['route'])) {
+                if ($this->routeMatches($item['route'], $targetRoute, $item['params'] ?? null, $routeParams)) {
+                    $breadcrumbs = $newPath;
+                    return true;
+                }
             }
 
             // Check children
@@ -267,6 +316,65 @@ class Navigation
         }
 
         return false;
+    }
+
+    /**
+     * Resolve a label that might be a string or closure
+     *
+     * @param string|callable $label
+     * @param array<string, mixed> $routeParams
+     */
+    protected function resolveLabel($label, array $routeParams): string
+    {
+        if (is_callable($label)) {
+            // Pass route parameters to the closure
+            // Extract model instances from route params for convenience
+            $models = array_filter($routeParams, fn ($param) => is_object($param));
+
+            // If there's only one model, pass it directly, otherwise pass all params
+            if (count($models) === 1) {
+                return $label(reset($models));
+            }
+
+            return $label($routeParams);
+        }
+
+        return $label;
+    }
+
+    /**
+     * Resolve wildcard parameters with actual values
+     *
+     * @param array<string, mixed> $itemParams
+     * @param array<string, mixed> $currentParams
+     * @return array<string, mixed>
+     */
+    protected function resolveWildcardParams(array $itemParams, array $currentParams): array
+    {
+        $resolved = [];
+
+        foreach ($itemParams as $key => $value) {
+            if ($value === '*' && isset($currentParams[$key])) {
+                $param = $currentParams[$key];
+
+                // Convert model instances to their route keys
+                if (is_object($param)) {
+                    if (method_exists($param, 'getRouteKey')) {
+                        $resolved[$key] = $param->getRouteKey();
+                    } elseif (method_exists($param, '__toString')) {
+                        $resolved[$key] = (string)$param;
+                    } else {
+                        $resolved[$key] = $param;
+                    }
+                } else {
+                    $resolved[$key] = $param;
+                }
+            } elseif ($value !== '*') {
+                $resolved[$key] = $value;
+            }
+        }
+
+        return $resolved;
     }
 
     /**
