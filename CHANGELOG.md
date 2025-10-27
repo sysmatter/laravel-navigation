@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.2](https://github.com/sysmatter/laravel-navigation/compare/v1.6.1...v1.6.2) (2025-10-27)
+
+
+### Bug Fixes
+
+* **wildcard params:** pass parameter directly to breadcrumb ([#22](https://github.com/sysmatter/laravel-navigation/issues/22)) ([194f4fd](https://github.com/sysmatter/laravel-navigation/commit/194f4fdf5e1ad097aa2fe445f0db1a2b517d2c5b))
+
 ## [1.6.1](https://github.com/sysmatter/laravel-navigation/compare/v1.6.0...v1.6.1) (2025-10-27)
 
 
