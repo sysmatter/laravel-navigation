@@ -275,12 +275,10 @@ class Navigation
                 continue;
             }
 
-            // Resolve label (could be string or closure)
-            $label = $this->resolveLabel($item['label'], $routeParams);
-
+            // Don't resolve label yet - wait until we know this is part of the path
             $currentItem = [
                 'id' => $this->generateBreadcrumbId($currentPath, $index),
-                'label' => $label,
+                'label' => $item['label'], // Keep the original label (string or closure)
             ];
 
             if (isset($item['route'])) {
@@ -302,6 +300,12 @@ class Navigation
             // Check if this is the target (with wildcard support)
             if (isset($item['route'])) {
                 if ($this->routeMatches($item['route'], $targetRoute, $item['params'] ?? null, $routeParams)) {
+                    foreach ($newPath as &$pathItem) {
+                        if (is_callable($pathItem['label'])) {
+                            $pathItem['label'] = $this->resolveLabel($pathItem['label'], $routeParams);
+                        }
+                    }
+                    unset($pathItem);
                     $breadcrumbs = $newPath;
                     return true;
                 }
