@@ -468,3 +468,149 @@ test('params are used in breadcrumb URL generation', function () {
     expect($breadcrumbs[0]['url'])->toBe(route('admin.users.index', ['user' => 7]))
         ->and($breadcrumbs[1]['url'])->toBe(route('admin.users.edit', ['user' => 7]));
 });
+
+test('dynamic label closures are only evaluated on matching routes', function () {
+    $callCount = 0;
+
+    $config = [
+        [
+            'label' => 'Users',
+            'route' => 'admin.users.index',
+            'children' => [
+                [
+                    'label' => function ($user) use (&$callCount) {
+                        $callCount++;
+                        return "Edit: {$user->name}";
+                    },
+                    'route' => 'admin.users.edit',
+                    'breadcrumbOnly' => true,
+                    'params' => ['user' => '*'],
+                ],
+            ],
+        ],
+        [
+            'label' => 'Dashboard',
+            'route' => 'admin.dashboard',
+        ],
+    ];
+
+    $iconCompiler = new IconCompiler();
+    $navigation = new Navigation('main', $config, $iconCompiler);
+
+    // Get breadcrumbs for a different route - closure should NOT be called
+    $breadcrumbs = $navigation->getBreadcrumbs('admin.dashboard', []);
+    expect($callCount)->toBe(0);
+
+    // Get breadcrumbs for the matching route - closure SHOULD be called once
+    $user = new class () {
+        public $name = 'John Doe';
+        public $id = 5;
+
+        public function getRouteKey()
+        {
+            return $this->id;
+        }
+
+        public function __toString()
+        {
+            return (string)$this->id;
+        }
+    };
+
+    $breadcrumbs = $navigation->getBreadcrumbs('admin.users.edit', ['user' => $user]);
+    expect($callCount)->toBe(1)
+        ->and($breadcrumbs[1]['label'])->toBe('Edit: John Doe');
+});
+
+test('dynamic labels do not fail when evaluating on wrong routes', function () {
+    $config = [
+        [
+            'label' => 'Users',
+            'route' => 'admin.users.index',
+            'children' => [
+                [
+                    'label' => fn ($user) => "Edit: {$user->name}",
+                    'route' => 'admin.users.edit',
+                    'breadcrumbOnly' => true,
+                    'params' => ['user' => '*'],
+                ],
+            ],
+        ],
+        [
+            'label' => 'Dashboard',
+            'route' => 'admin.dashboard',
+        ],
+    ];
+
+    $iconCompiler = new IconCompiler();
+    $navigation = new Navigation('main', $config, $iconCompiler);
+
+    // This should not throw an error even though the closure expects a user object
+    $breadcrumbs = $navigation->getBreadcrumbs('admin.dashboard', []);
+
+    expect($breadcrumbs)->toHaveCount(1)
+        ->and($breadcrumbs[0]['label'])->toBe('Dashboard');
+});
+
+test('multiple dynamic label closures only evaluate their own route', function () {
+    $userCallCount = 0;
+    $productCallCount = 0;
+
+    $config = [
+        [
+            'label' => 'Users',
+            'route' => 'admin.users.index',
+            'children' => [
+                [
+                    'label' => function ($user) use (&$userCallCount) {
+                        $userCallCount++;
+                        return "Edit User: {$user->name}";
+                    },
+                    'route' => 'admin.users.edit',
+                    'breadcrumbOnly' => true,
+                    'params' => ['user' => '*'],
+                ],
+            ],
+        ],
+        [
+            'label' => 'Products',
+            'route' => 'admin.users.index', // Reusing route for test
+            'children' => [
+                [
+                    'label' => function ($product) use (&$productCallCount) {
+                        $productCallCount++;
+                        return "Edit Product: {$product->name}";
+                    },
+                    'route' => 'admin.users.show', // Different route
+                    'breadcrumbOnly' => true,
+                    'params' => ['user' => '*'],
+                ],
+            ],
+        ],
+    ];
+
+    $iconCompiler = new IconCompiler();
+    $navigation = new Navigation('main', $config, $iconCompiler);
+
+    $user = new class () {
+        public $name = 'Jane Doe';
+        public $id = 10;
+
+        public function getRouteKey()
+        {
+            return $this->id;
+        }
+
+        public function __toString()
+        {
+            return (string)$this->id;
+        }
+    };
+
+    // Get breadcrumbs for users.edit - only user closure should be called
+    $breadcrumbs = $navigation->getBreadcrumbs('admin.users.edit', ['user' => $user]);
+
+    expect($userCallCount)->toBe(1)
+        ->and($productCallCount)->toBe(0)
+        ->and($breadcrumbs[1]['label'])->toBe('Edit User: Jane Doe');
+});
