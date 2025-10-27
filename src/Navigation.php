@@ -115,6 +115,24 @@ class Navigation
                 continue;
             }
 
+            // DEFENSIVE: Skip items with dynamic labels or wildcards that aren't breadcrumbOnly
+            $hasWildcardParams = isset($item['params']) && in_array('*', $item['params'], true);
+            $hasDynamicLabel = isset($item['label']) && is_callable($item['label']);
+
+            if ($hasWildcardParams || $hasDynamicLabel) {
+                if (config('app.debug')) {
+                    logger()->warning(
+                        "Navigation item skipped: Items with wildcard params or dynamic labels should use 'breadcrumbOnly' => true",
+                        [
+                            'navigation' => $this->name,
+                            'label' => $hasDynamicLabel ? '[closure]' : ($item['label'] ?? 'unknown'),
+                            'route' => $item['route'] ?? null,
+                        ]
+                    );
+                }
+                continue;
+            }
+
             $node = [
                 'id' => $id,
                 'type' => 'link',
