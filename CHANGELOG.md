@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/sysmatter/laravel-navigation/compare/v1.6.0...v1.6.1) (2025-10-27)
+
+
+### Bug Fixes
+
+* ignore dynamic labels when not applicable ([#20](https://github.com/sysmatter/laravel-navigation/issues/20)) ([87e14fe](https://github.com/sysmatter/laravel-navigation/commit/87e14fe080749ce3a00d540101ec6e3eda1b9ef4))
+
 ## [1.6.0](https://github.com/sysmatter/laravel-navigation/compare/v1.5.0...v1.6.0) (2025-10-27)
 
 
