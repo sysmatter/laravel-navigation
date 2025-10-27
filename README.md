@@ -121,6 +121,293 @@ $navigation = Navigation::get('sidebar')->toTree([
 ]);
 ```
 
+### Wildcard Parameters
+
+#### Overview
+
+Wildcard parameters allow you to include CRUD detail/edit pages in breadcrumbs and active states without cluttering your
+navigation menu. This is particularly useful for pages like `/users/123/edit` that should show breadcrumbs and mark
+parent items as active, but shouldn't appear in the navigation itself.
+
+#### Basic Usage
+
+##### Breadcrumb-Only Items
+
+Use `breadcrumbOnly: true` to hide items from navigation while keeping them in breadcrumbs:
+
+```php
+'navigations' => [
+    'main' => [
+        [
+            'label' => 'Users',
+            'route' => 'users.index',
+            'icon' => 'users',
+            'children' => [
+                [
+                    'label' => 'Edit User',
+                    'route' => 'users.edit',
+                    'breadcrumbOnly' => true,
+                    'params' => ['user' => '*'],
+                ],
+            ],
+        ],
+    ],
+],
+```
+
+When visiting `/users/5/edit`:
+
+- **Navigation**: Only shows "Users" link
+- **Breadcrumbs**: Shows "Users > Edit User"
+- **Active State**: "Users" is marked as active
+
+#### Wildcard Syntax
+
+##### Single Wildcard Parameter
+
+The `'*'` wildcard matches any parameter value:
+
+```php
+[
+    'label' => 'View Order',
+    'route' => 'orders.show',
+    'breadcrumbOnly' => true,
+    'params' => ['order' => '*'],
+]
+```
+
+Matches:
+
+- `/orders/1` ✓
+- `/orders/999` ✓
+- `/orders/abc-123` ✓
+
+##### Multiple Wildcard Parameters
+
+```php
+[
+    'label' => 'Edit Team Member',
+    'route' => 'organizations.teams.members.edit',
+    'breadcrumbOnly' => true,
+    'params' => [
+        'organization' => '*',
+        'team' => '*',
+        'member' => '*',
+    ],
+]
+```
+
+##### Mixed Wildcard and Exact Parameters
+
+Combine wildcards with exact values to match specific scenarios:
+
+```php
+[
+    'label' => 'Edit Admin User',
+    'route' => 'organizations.users.edit',
+    'breadcrumbOnly' => true,
+    'params' => [
+        'organization' => 5, // Only match organization 5
+        'user' => '*',       // Any user
+    ],
+]
+```
+
+Matches:
+
+- `/organizations/5/users/10/edit` ✓
+- `/organizations/5/users/99/edit` ✓
+- `/organizations/3/users/10/edit` ✗
+
+#### Dynamic Labels
+
+##### Single Model Instance
+
+Use closures to create dynamic labels based on route model binding:
+
+```php
+[
+    'label' => fn($user) => "Edit: {$user->name}",
+    'route' => 'users.edit',
+    'breadcrumbOnly' => true,
+    'params' => ['user' => '*'],
+]
+```
+
+Result: "Users > Edit: John Doe"
+
+##### Multiple Models
+
+When multiple models are present, the closure receives all parameters:
+
+```php
+[
+    'label' => fn($params) => "Edit {$params['user']->name} in {$params['organization']->name}",
+    'route' => 'organizations.users.edit',
+    'breadcrumbOnly' => true,
+    'params' => [
+        'organization' => '*',
+        'user' => '*',
+    ],
+]
+```
+
+Result: "Organizations > Users > Edit Jane Smith in Acme Corp"
+
+##### Static Labels
+
+You can also use simple strings for labels:
+
+```php
+[
+    'label' => 'Edit User',
+    'route' => 'users.edit',
+    'breadcrumbOnly' => true,
+    'params' => ['user' => '*'],
+]
+```
+
+Result: "Users > Edit User"
+
+#### Active State
+
+##### Automatic Bubbling
+
+Active state automatically bubbles up through the navigation hierarchy:
+
+```php
+[
+    'label' => 'Admin',
+    'route' => 'admin.dashboard',
+    'children' => [
+        [
+            'label' => 'Users',
+            'route' => 'admin.users.index',
+            'children' => [
+                [
+                    'label' => 'Edit User',
+                    'route' => 'admin.users.edit',
+                    'breadcrumbOnly' => true,
+                    'params' => ['user' => '*'],
+                ],
+            ],
+        ],
+    ],
+]
+```
+
+When on `/admin/users/5/edit`:
+
+- "Admin" is active ✓
+- "Users" is active ✓
+- "Edit User" is in breadcrumbs but not in nav
+
+#### Common Patterns
+
+##### CRUD Resources
+
+```php
+[
+    'label' => 'Products',
+    'route' => 'products.index',
+    'icon' => 'package',
+    'children' => [
+        [
+            'label' => 'Create Product',
+            'route' => 'products.create',
+            'breadcrumbOnly' => true,
+        ],
+        [
+            'label' => fn($product) => $product->name,
+            'route' => 'products.show',
+            'breadcrumbOnly' => true,
+            'params' => ['product' => '*'],
+        ],
+        [
+            'label' => fn($product) => "Edit: {$product->name}",
+            'route' => 'products.edit',
+            'breadcrumbOnly' => true,
+            'params' => ['product' => '*'],
+        ],
+    ],
+]
+```
+
+##### Nested Resources
+
+```php
+[
+    'label' => 'Organizations',
+    'route' => 'organizations.index',
+    'children' => [
+        [
+            'label' => fn($org) => $org->name,
+            'route' => 'organizations.show',
+            'breadcrumbOnly' => true,
+            'params' => ['organization' => '*'],
+            'children' => [
+                [
+                    'label' => 'Team Members',
+                    'route' => 'organizations.members.index',
+                    'params' => ['organization' => '*'],
+                ],
+                [
+                    'label' => fn($params) => "Edit {$params['member']->name}",
+                    'route' => 'organizations.members.edit',
+                    'breadcrumbOnly' => true,
+                    'params' => [
+                        'organization' => '*',
+                        'member' => '*',
+                    ],
+                ],
+            ],
+        ],
+    ],
+]
+```
+
+#### Parameters Without Wildcards
+
+You can also pass regular parameters for URL generation:
+
+```php
+// Generate navigation with specific params
+$tree = Navigation::get('main')->toTree(['filter' => 'active']);
+
+// Generate breadcrumbs with params
+$breadcrumbs = Navigation::breadcrumbs('main', 'users.edit', ['user' => 5]);
+```
+
+#### Tips
+
+1. **Model Requirements**: When using dynamic labels with models, ensure your models implement `getRouteKey()` or
+   `__toString()` for proper URL generation.
+
+2. **Performance**: Wildcard matching happens at runtime, so it's performant even with many breadcrumb-only items.
+
+3. **Specificity**: More specific routes should come before more general ones in your navigation config.
+
+4. **Navigation vs Breadcrumbs**: Use `breadcrumbOnly` for detail/edit pages, and `navOnly` (if needed) for items that
+   should only appear in navigation but not breadcrumbs.
+
+#### Frontend Integration
+
+When building your React/TypeScript components, breadcrumb-only items won't appear in the navigation tree but will be
+present in breadcrumbs:
+
+```typescript
+// Navigation returns only visible items
+const navTree = await fetch('/api/navigation/main');
+// Items with breadcrumbOnly are excluded
+
+// Breadcrumbs include breadcrumb-only items
+const breadcrumbs = await fetch('/api/breadcrumbs');
+// [
+//   { label: 'Users', url: '/users' },
+//   { label: 'Edit: John Doe', url: '/users/5/edit' }
+// ]
+```
+
 ### Breadcrumbs
 
 Generate breadcrumbs from the current route:
