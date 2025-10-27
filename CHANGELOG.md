@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/sysmatter/laravel-navigation/compare/v1.5.0...v1.6.0) (2025-10-27)
+
+
+### Features
+
+* handle wildcard params ([#18](https://github.com/sysmatter/laravel-navigation/issues/18)) ([7a3b583](https://github.com/sysmatter/laravel-navigation/commit/7a3b5831fa46cacc8745866eb87d33d7887de881))
+
 ## [1.5.0](https://github.com/sysmatter/laravel-navigation/compare/v1.4.0...v1.5.0) (2025-10-16)
 
 
