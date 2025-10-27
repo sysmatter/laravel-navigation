@@ -35,16 +35,19 @@ class NavigationManager
             return [];
         }
 
+        // Get current route parameters
+        $routeParams = request()->route()?->parameters() ?? [];
+
         // If specific navigation provided, search only that one
         if ($name !== null) {
             $navigation = $this->get($name);
-            return $navigation->getBreadcrumbs($routeName);
+            return $navigation->getBreadcrumbs($routeName, $routeParams);
         }
 
         // Otherwise, search all navigations
         foreach ($this->config['navigations'] ?? [] as $navName => $items) {
             $navigation = $this->get($navName);
-            $breadcrumbs = $navigation->getBreadcrumbs($routeName);
+            $breadcrumbs = $navigation->getBreadcrumbs($routeName, $routeParams);
 
             if (!empty($breadcrumbs)) {
                 return $breadcrumbs;
