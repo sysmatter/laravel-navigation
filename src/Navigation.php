@@ -98,11 +98,25 @@ class Navigation
 
             // Handle sections
             if ($type === 'section') {
-                $tree[] = [
+                $section = [
                     'id' => $id,
                     'type' => 'section',
                     'label' => $item['label'],
+                    'children' => [],
                 ];
+
+                // Process section children
+                $hadChildren = isset($item['children']) && is_array($item['children']) && !empty($item['children']);
+                if ($hadChildren) {
+                    $section['children'] = $this->buildTree($item['children'], $routeParams, $id);
+                }
+
+                // Only exclude sections if they had children but all were filtered out
+                if ($hadChildren && empty($section['children'])) {
+                    continue;
+                }
+
+                $tree[] = $section;
                 continue;
             }
 

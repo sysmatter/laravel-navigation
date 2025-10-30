@@ -836,18 +836,22 @@ Define items that trigger POST/DELETE requests:
 
 ### Sections and Separators
 
-Organize your navigation with visual sections and dividers:
+Organize your navigation with visual sections (containers) and dividers:
 
 ```php
 'navigations' => [
     'main' => [
         ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'home'],
         
-        // Section header
-        ['type' => 'section', 'label' => 'Management'],
-        
-        ['label' => 'Users', 'route' => 'users.index', 'icon' => 'users'],
-        ['label' => 'Teams', 'route' => 'teams.index', 'icon' => 'users-2'],
+        // Section container with grouped items
+        [
+            'label' => 'Management',
+            'type' => 'section',
+            'children' => [
+                ['label' => 'Users', 'route' => 'users.index', 'icon' => 'users'],
+                ['label' => 'Teams', 'route' => 'teams.index', 'icon' => 'users-2'],
+            ],
+        ],
         
         // Visual separator
         ['type' => 'separator'],
@@ -858,10 +862,34 @@ Organize your navigation with visual sections and dividers:
 ],
 ```
 
+**Section Features:**
+
+- **Container Structure**: Sections contain their children, making boundaries clear
+- **Permission Control**: Apply `can` or `visible` to entire section to hide all children
+- **Nested Sections**: Sections can contain other sections
+- **Auto-hiding**: Sections with no visible children are automatically excluded
+- **Breadcrumb Exclusion**: Sections don't appear in breadcrumbs, only their children do
+
+**Example with Permissions:**
+
+```php
+[
+    'label' => 'Admin',
+    'type' => 'section',
+    'can' => 'access-admin',  // Hides entire section if user lacks permission
+    'children' => [
+        ['label' => 'Dashboard', 'route' => 'admin.dashboard', 'icon' => 'layout-dashboard'],
+        ['label' => 'Users', 'route' => 'admin.users.index', 'icon' => 'users'],
+        ['label' => 'Edit User', 'route' => 'admin.users.edit', 'breadcrumbOnly' => true],
+        ['label' => 'Roles', 'route' => 'admin.roles.index', 'icon' => 'shield'],
+    ],
+],
+```
+
 **Types:**
 
 - `'link'` - Regular navigation item (default)
-- `'section'` - Section header for grouping items
+- `'section'` - Container for grouping related items
 - `'separator'` - Visual divider between items
 
 **React Example:**
@@ -871,30 +899,41 @@ Organize your navigation with visual sections and dividers:
     navigation.map((item) => {
         if (item.type === 'section') {
             return (
-
-                {item.label}
-
+                <div key={item.id} className="nav-section">
+                    <h3 className="section-header">{item.label}</h3>
+                    <div className="section-content">
+                        <Navigation items={item.children || []}/>
+                    </div>
+                </div>
             );
         }
 
         if (item.type === 'separator') {
-            return;
+            return <hr key={item.id} className="nav-separator"/>;
         }
 
         // Regular link rendering
-        return {item.label};
+        return <Link key={item.id} href={item.url}>{item.label}</Link>;
     })
 }
 ```
 
-Sections and separators are automatically excluded from breadcrumbs and output with appropriate structure:
+Sections and separators are automatically excluded from breadcrumbs. The output includes a `children` array for
+sections:
 
 ```php
 [
     ['id' => 'nav-main-0', 'type' => 'link', 'label' => 'Dashboard', ...],
-    ['id' => 'nav-main-1', 'type' => 'section', 'label' => 'Management'],
-    ['id' => 'nav-main-2', 'type' => 'link', 'label' => 'Users', ...],
-    ['id' => 'nav-main-3', 'type' => 'separator'],
+    [
+        'id' => 'nav-main-1', 
+        'type' => 'section', 
+        'label' => 'Management',
+        'children' => [
+            ['id' => 'nav-main-1-0', 'type' => 'link', 'label' => 'Users', ...],
+            ['id' => 'nav-main-1-1', 'type' => 'link', 'label' => 'Teams', ...],
+        ],
+    ],
+    ['id' => 'nav-main-2', 'type' => 'separator'],
     // ...
 ]
 ```
