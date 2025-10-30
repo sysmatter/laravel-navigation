@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/sysmatter/laravel-navigation/compare/v1.6.2...v1.7.0) (2025-10-30)
+
+
+### Features
+
+* add children to section type ([#24](https://github.com/sysmatter/laravel-navigation/issues/24)) ([ab91a5e](https://github.com/sysmatter/laravel-navigation/commit/ab91a5ed2b11a245aa6e9e11b33a6ce9bf63d8eb))
+
 ## [1.6.2](https://github.com/sysmatter/laravel-navigation/compare/v1.6.1...v1.6.2) (2025-10-27)
 
 
