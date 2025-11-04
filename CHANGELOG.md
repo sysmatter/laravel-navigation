@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/sysmatter/laravel-navigation/compare/v1.7.0...v1.7.1) (2025-11-04)
+
+
+### Miscellaneous Chores
+
+* format updates, update workflows ([#26](https://github.com/sysmatter/laravel-navigation/issues/26)) ([8f2b052](https://github.com/sysmatter/laravel-navigation/commit/8f2b0521a67f735c2ea92e18980bb2316366fc95))
+
 ## [1.7.0](https://github.com/sysmatter/laravel-navigation/compare/v1.6.2...v1.7.0) (2025-10-30)
 
 
