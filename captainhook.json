@@ -10,13 +10,7 @@
                 "action": "composer analyse"
             },
             {
-                "action": "composer pint"
-            },
-            {
                 "action": "composer test"
-            },
-            {
-                "action": "git add ."
             }
         ]
     }

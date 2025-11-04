@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use SysMatter\Navigation\Navigation;
 use SysMatter\Navigation\NavigationManager;
 

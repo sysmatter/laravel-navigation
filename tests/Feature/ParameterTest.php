@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use SysMatter\Navigation\IconCompiler;
 use SysMatter\Navigation\Navigation;
@@ -37,6 +39,7 @@ test('wildcard params match any parameter value', function () {
         $route = Route::getRoutes()->getByName('admin.users.edit');
         $route->bind(request());
         $route->setParameter('user', 5);
+
         return $route;
     });
 
@@ -130,7 +133,7 @@ test('active state bubbles up with wildcard params', function () {
     $navigation = new Navigation('main', $config, $iconCompiler);
 
     // Mock request on edit page
-    $mockRoute = Mockery::mock(\Illuminate\Routing\Route::class);
+    $mockRoute = Mockery::mock(Illuminate\Routing\Route::class);
     $mockRoute->shouldReceive('getName')->andReturn('admin.users.edit');
     $mockRoute->shouldReceive('parameters')->andReturn(['user' => 5]);
 
@@ -193,18 +196,20 @@ test('dynamic labels receive model instance', function () {
     $navigation = new Navigation('main', $config, $iconCompiler);
 
     // Mock a user model with getRouteKey for URL generation
-    $user = new class () {
+    $user = new class()
+    {
         public $name = 'John Doe';
+
         public $id = 5;
+
+        public function __toString()
+        {
+            return (string) $this->id;
+        }
 
         public function getRouteKey()
         {
             return $this->id;
-        }
-
-        public function __toString()
-        {
-            return (string)$this->id;
         }
     };
 
@@ -236,33 +241,37 @@ test('dynamic labels work with multiple models', function () {
     $iconCompiler = new IconCompiler();
     $navigation = new Navigation('main', $config, $iconCompiler);
 
-    $org = new class () {
+    $org = new class()
+    {
         public $name = 'Acme Corp';
+
         public $id = 1;
+
+        public function __toString()
+        {
+            return (string) $this->id;
+        }
 
         public function getRouteKey()
         {
             return $this->id;
-        }
-
-        public function __toString()
-        {
-            return (string)$this->id;
         }
     };
 
-    $user = new class () {
+    $user = new class()
+    {
         public $name = 'Jane Smith';
+
         public $id = 10;
+
+        public function __toString()
+        {
+            return (string) $this->id;
+        }
 
         public function getRouteKey()
         {
             return $this->id;
-        }
-
-        public function __toString()
-        {
-            return (string)$this->id;
         }
     };
 
@@ -480,6 +489,7 @@ test('dynamic label closures are only evaluated on matching routes', function ()
                 [
                     'label' => function ($user) use (&$callCount) {
                         $callCount++;
+
                         return "Edit: {$user->name}";
                     },
                     'route' => 'admin.users.edit',
@@ -502,18 +512,20 @@ test('dynamic label closures are only evaluated on matching routes', function ()
     expect($callCount)->toBe(0);
 
     // Get breadcrumbs for the matching route - closure SHOULD be called once
-    $user = new class () {
+    $user = new class()
+    {
         public $name = 'John Doe';
+
         public $id = 5;
+
+        public function __toString()
+        {
+            return (string) $this->id;
+        }
 
         public function getRouteKey()
         {
             return $this->id;
-        }
-
-        public function __toString()
-        {
-            return (string)$this->id;
         }
     };
 
@@ -564,6 +576,7 @@ test('multiple dynamic label closures only evaluate their own route', function (
                 [
                     'label' => function ($user) use (&$userCallCount) {
                         $userCallCount++;
+
                         return "Edit User: {$user->name}";
                     },
                     'route' => 'admin.users.edit',
@@ -579,6 +592,7 @@ test('multiple dynamic label closures only evaluate their own route', function (
                 [
                     'label' => function ($product) use (&$productCallCount) {
                         $productCallCount++;
+
                         return "Edit Product: {$product->name}";
                     },
                     'route' => 'admin.users.show', // Different route
@@ -592,18 +606,20 @@ test('multiple dynamic label closures only evaluate their own route', function (
     $iconCompiler = new IconCompiler();
     $navigation = new Navigation('main', $config, $iconCompiler);
 
-    $user = new class () {
+    $user = new class()
+    {
         public $name = 'Jane Doe';
+
         public $id = 10;
+
+        public function __toString()
+        {
+            return (string) $this->id;
+        }
 
         public function getRouteKey()
         {
             return $this->id;
-        }
-
-        public function __toString()
-        {
-            return (string)$this->id;
         }
     };
 

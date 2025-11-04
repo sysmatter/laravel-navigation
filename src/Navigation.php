@@ -1,19 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SysMatter\Navigation;
 
 use Exception;
 use Illuminate\Support\Str;
 
-class Navigation
+final class Navigation
 {
-    protected string $name;
+    private string $name;
+
     /** @var array<int, array<string, mixed>> */
-    protected array $items;
-    protected IconCompiler $iconCompiler;
+    private array $items;
+
+    private IconCompiler $iconCompiler;
 
     /**
-     * @param array<int, array<string, mixed>> $items
+     * @param  array<int, array<string, mixed>>  $items
      */
     public function __construct(string $name, array $items, IconCompiler $iconCompiler)
     {
@@ -23,7 +27,7 @@ class Navigation
     }
 
     /**
-     * @param array<string, mixed> $routeParams
+     * @param  array<string, mixed>  $routeParams
      * @return array<int, array<string, mixed>>
      */
     public function toTree(array $routeParams = []): array
@@ -32,7 +36,7 @@ class Navigation
     }
 
     /**
-     * @param array<string, mixed> $routeParams
+     * @param  array<string, mixed>  $routeParams
      * @return array<int, array<string, mixed>>
      */
     public function getBreadcrumbs(string $currentRouteName, array $routeParams = []): array
@@ -44,11 +48,11 @@ class Navigation
     }
 
     /**
-     * @param array<int, array<string, mixed>> $items
-     * @param array<string, mixed> $routeParams
+     * @param  array<int, array<string, mixed>>  $items
+     * @param  array<string, mixed>  $routeParams
      * @return array<int, array<string, mixed>>
      */
-    protected function buildTree(array $items, array $routeParams = [], ?string $parentId = null): array
+    private function buildTree(array $items, array $routeParams = [], ?string $parentId = null): array
     {
         $tree = [];
         $currentRoute = request()->route()?->getName();
@@ -58,10 +62,10 @@ class Navigation
             // Handle conditional visibility first - if not visible, skip everything else
             if (isset($item['visible'])) {
                 if (is_callable($item['visible'])) {
-                    if (!$item['visible']()) {
+                    if (! $item['visible']()) {
                         continue;
                     }
-                } elseif (!$item['visible']) {
+                } elseif (! $item['visible']) {
                     continue;
                 }
             }
@@ -70,17 +74,17 @@ class Navigation
             if (isset($item['can'])) {
                 $user = auth()->user();
 
-                if (!$user) {
+                if (! $user) {
                     continue;
                 }
 
                 if (is_array($item['can'])) {
                     [$ability, $arguments] = $item['can'];
-                    if (!$user->can($ability, $arguments)) {
+                    if (! $user->can($ability, $arguments)) {
                         continue;
                     }
                 } else {
-                    if (!$user->can($item['can'])) {
+                    if (! $user->can($item['can'])) {
                         continue;
                     }
                 }
@@ -106,7 +110,7 @@ class Navigation
                 ];
 
                 // Process section children
-                $hadChildren = isset($item['children']) && is_array($item['children']) && !empty($item['children']);
+                $hadChildren = isset($item['children']) && is_array($item['children']) && ! empty($item['children']);
                 if ($hadChildren) {
                     $section['children'] = $this->buildTree($item['children'], $routeParams, $id);
                 }
@@ -117,6 +121,7 @@ class Navigation
                 }
 
                 $tree[] = $section;
+
                 continue;
             }
 
@@ -126,6 +131,7 @@ class Navigation
                     'id' => $id,
                     'type' => 'separator',
                 ];
+
                 continue;
             }
 
@@ -144,6 +150,7 @@ class Navigation
                         ]
                     );
                 }
+
                 continue;
             }
 
@@ -174,7 +181,7 @@ class Navigation
 
             // Add any custom attributes (excluding internal ones)
             foreach ($item as $key => $value) {
-                if (!in_array($key, ['label', 'route', 'url', 'method', 'icon', 'children', 'visible', 'can', 'type', 'breadcrumbOnly', 'navOnly', 'params'])) {
+                if (! in_array($key, ['label', 'route', 'url', 'method', 'icon', 'children', 'visible', 'can', 'type', 'breadcrumbOnly', 'navOnly', 'params'])) {
                     $node[$key] = $value;
                 }
             }
@@ -191,12 +198,12 @@ class Navigation
     }
 
     /**
-     * @param array<string, mixed> $item
-     * @param array<string, mixed> $currentRouteParams
+     * @param  array<string, mixed>  $item
+     * @param  array<string, mixed>  $currentRouteParams
      */
-    protected function isActive(array $item, ?string $currentRoute, array $currentRouteParams = []): bool
+    private function isActive(array $item, ?string $currentRoute, array $currentRouteParams = []): bool
     {
-        if (!$currentRoute) {
+        if (! $currentRoute) {
             return false;
         }
 
@@ -207,7 +214,7 @@ class Navigation
             }
 
             // Check if current route is a child route (e.g., users.index matches users.*)
-            if (Str::startsWith($currentRoute, $item['route'] . '.')) {
+            if (Str::startsWith($currentRoute, $item['route'].'.')) {
                 return true;
             }
         }
@@ -227,10 +234,10 @@ class Navigation
     /**
      * Check if a route matches with wildcard parameter support
      *
-     * @param array<string, mixed>|null $itemParams
-     * @param array<string, mixed> $currentParams
+     * @param  array<string, mixed>|null  $itemParams
+     * @param  array<string, mixed>  $currentParams
      */
-    protected function routeMatches(string $itemRoute, string $currentRoute, ?array $itemParams, array $currentParams): bool
+    private function routeMatches(string $itemRoute, string $currentRoute, ?array $itemParams, array $currentParams): bool
     {
         if ($itemRoute !== $currentRoute) {
             return false;
@@ -245,12 +252,12 @@ class Navigation
         foreach ($itemParams as $key => $value) {
             if ($value === '*') {
                 // Wildcard - just check the param exists
-                if (!isset($currentParams[$key])) {
+                if (! isset($currentParams[$key])) {
                     return false;
                 }
             } else {
                 // Exact match required
-                if (!isset($currentParams[$key]) || $currentParams[$key] != $value) {
+                if (! isset($currentParams[$key]) || $currentParams[$key] !== $value) {
                     return false;
                 }
             }
@@ -260,9 +267,9 @@ class Navigation
     }
 
     /**
-     * @param array<string, mixed> $params
+     * @param  array<string, mixed>  $params
      */
-    protected function resolveRoute(string $routeName, array $params = []): string
+    private function resolveRoute(string $routeName, array $params = []): string
     {
         try {
             return route($routeName, $params);
@@ -272,17 +279,17 @@ class Navigation
     }
 
     /**
-     * @param array<int, array<string, mixed>> $items
-     * @param array<int, array<string, mixed>> $currentPath
-     * @param array<int, array<string, mixed>> $breadcrumbs
-     * @param array<string, mixed> $routeParams
+     * @param  array<int, array<string, mixed>>  $items
+     * @param  array<int, array<string, mixed>>  $currentPath
+     * @param  array<int, array<string, mixed>>  $breadcrumbs
+     * @param  array<string, mixed>  $routeParams
      */
-    protected function findBreadcrumbPath(
-        array  $items,
+    private function findBreadcrumbPath(
+        array $items,
         string $targetRoute,
-        array  $currentPath,
-        array  &$breadcrumbs,
-        array  $routeParams = []
+        array $currentPath,
+        array &$breadcrumbs,
+        array $routeParams = []
     ): bool {
         foreach ($items as $index => $item) {
             // Skip items marked as nav-only in breadcrumbs
@@ -293,6 +300,7 @@ class Navigation
                         return true;
                     }
                 }
+
                 continue;
             }
 
@@ -304,6 +312,7 @@ class Navigation
                         return true;
                     }
                 }
+
                 continue;
             }
 
@@ -339,6 +348,7 @@ class Navigation
                     }
                     unset($pathItem);
                     $breadcrumbs = $newPath;
+
                     return true;
                 }
             }
@@ -357,10 +367,10 @@ class Navigation
     /**
      * Resolve a label that might be a string or closure
      *
-     * @param string|callable $label
-     * @param array<string, mixed> $routeParams
+     * @param  string|callable  $label
+     * @param  array<string, mixed>  $routeParams
      */
-    protected function resolveLabel($label, array $routeParams): string
+    private function resolveLabel($label, array $routeParams): string
     {
         if (is_callable($label)) {
             // Pass route parameters to the closure
@@ -381,11 +391,11 @@ class Navigation
     /**
      * Resolve wildcard parameters with actual values
      *
-     * @param array<string, mixed> $itemParams
-     * @param array<string, mixed> $currentParams
+     * @param  array<string, mixed>  $itemParams
+     * @param  array<string, mixed>  $currentParams
      * @return array<string, mixed>
      */
-    protected function resolveWildcardParams(array $itemParams, array $currentParams): array
+    private function resolveWildcardParams(array $itemParams, array $currentParams): array
     {
         $resolved = [];
 
@@ -398,7 +408,7 @@ class Navigation
                     if (method_exists($param, 'getRouteKey')) {
                         $resolved[$key] = $param->getRouteKey();
                     } elseif (method_exists($param, '__toString')) {
-                        $resolved[$key] = (string)$param;
+                        $resolved[$key] = (string) $param;
                     } else {
                         $resolved[$key] = $param;
                     }
@@ -414,11 +424,12 @@ class Navigation
     }
 
     /**
-     * @param array<int, array<string, mixed>> $currentPath
+     * @param  array<int, array<string, mixed>>  $currentPath
      */
-    protected function generateBreadcrumbId(array $currentPath, int $index): string
+    private function generateBreadcrumbId(array $currentPath, int $index): string
     {
         $depth = count($currentPath);
+
         return "breadcrumb-{$this->name}-{$depth}-{$index}";
     }
 }

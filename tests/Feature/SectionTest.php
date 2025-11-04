@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use SysMatter\Navigation\IconCompiler;
 use SysMatter\Navigation\Navigation;
 

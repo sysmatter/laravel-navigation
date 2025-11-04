@@ -1,15 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SysMatter\Navigation;
 
-class NavigationManager
+final class NavigationManager
 {
     /** @var array<string, mixed> */
-    protected array $config;
-    protected IconCompiler $iconCompiler;
+    private array $config;
+
+    private IconCompiler $iconCompiler;
 
     /**
-     * @param array<string, mixed> $config
+     * @param  array<string, mixed>  $config
      */
     public function __construct(array $config)
     {
@@ -31,7 +34,7 @@ class NavigationManager
     {
         $routeName = $routeName ?? request()->route()?->getName();
 
-        if (!$routeName) {
+        if (! $routeName) {
             return [];
         }
 
@@ -41,6 +44,7 @@ class NavigationManager
         // If specific navigation provided, search only that one
         if ($name !== null) {
             $navigation = $this->get($name);
+
             return $navigation->getBreadcrumbs($routeName, $routeParams);
         }
 
@@ -49,7 +53,7 @@ class NavigationManager
             $navigation = $this->get($navName);
             $breadcrumbs = $navigation->getBreadcrumbs($routeName, $routeParams);
 
-            if (!empty($breadcrumbs)) {
+            if (! empty($breadcrumbs)) {
                 return $breadcrumbs;
             }
         }

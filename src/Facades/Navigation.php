@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SysMatter\Navigation\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class Navigation extends Facade
+final class Navigation extends Facade
 {
     protected static function getFacadeAccessor(): string
     {

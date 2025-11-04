@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use SysMatter\Navigation\Facades\Navigation;
 
 it('can use facade to get navigation', function () {

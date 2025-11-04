@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SysMatter\Navigation\Tests;
 
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -18,23 +20,23 @@ class TestCase extends Orchestra
     protected function getEnvironmentSetUp($app): void
     {
         // Setup test routes
-        $app['router']->get('/', fn () => 'home')->name('dashboard');
-        $app['router']->get('/users', fn () => 'users')->name('users.index');
+        $app['router']->get('/', fn() => 'home')->name('dashboard');
+        $app['router']->get('/users', fn() => 'users')->name('users.index');
 
         // Put specific /users/* routes BEFORE the parameterized route
-        $app['router']->get('/users/roles', fn () => 'roles')->name('users.roles.index');
-        $app['router']->get('/users/permissions', fn () => 'permissions')->name('users.permissions.index');
+        $app['router']->get('/users/roles', fn() => 'roles')->name('users.roles.index');
+        $app['router']->get('/users/permissions', fn() => 'permissions')->name('users.permissions.index');
 
         // Now the parameterized route
-        $app['router']->get('/users/{user}', fn ($user) => "user {$user}")->name('users.show');
+        $app['router']->get('/users/{user}', fn($user) => "user {$user}")->name('users.show');
 
-        $app['router']->get('/settings', fn () => 'settings')->name('settings.index');
-        $app['router']->get('/settings/general', fn () => 'general')->name('settings.general');
-        $app['router']->get('/settings/billing', fn () => 'billing')->name('settings.billing');
-        $app['router']->get('/profile', fn () => 'profile')->name('profile.edit');
-        $app['router']->post('/logout', fn () => 'logout')->name('logout');
-        $app['router']->get('/privacy', fn () => 'privacy')->name('legal.privacy');
-        $app['router']->get('/terms', fn () => 'terms')->name('legal.terms');
+        $app['router']->get('/settings', fn() => 'settings')->name('settings.index');
+        $app['router']->get('/settings/general', fn() => 'general')->name('settings.general');
+        $app['router']->get('/settings/billing', fn() => 'billing')->name('settings.billing');
+        $app['router']->get('/profile', fn() => 'profile')->name('profile.edit');
+        $app['router']->post('/logout', fn() => 'logout')->name('logout');
+        $app['router']->get('/privacy', fn() => 'privacy')->name('legal.privacy');
+        $app['router']->get('/terms', fn() => 'terms')->name('legal.terms');
     }
 
     protected function getTestConfig(): array
@@ -82,7 +84,7 @@ class TestCase extends Orchestra
 
     protected function createMockUser(array $permissions = []): Authenticatable
     {
-        return new class ($permissions) implements Authenticatable {
+        return new class($permissions) implements Authenticatable {
             private array $permissions;
 
             public function __construct(array $permissions = [])

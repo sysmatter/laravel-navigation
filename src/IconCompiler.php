@@ -1,16 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SysMatter\Navigation;
 
 use Exception;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
-class IconCompiler
+final class IconCompiler
 {
     /** @var array<string, string> */
-    protected array $compiledIcons = [];
-    protected bool $useCache = true;
+    private array $compiledIcons = [];
 
     public function __construct()
     {
@@ -48,7 +49,7 @@ class IconCompiler
     }
 
     /**
-     * @param array<int, string> $iconNames
+     * @param  array<int, string>  $iconNames
      * @return array<string, string>
      */
     public function compileAll(array $iconNames): array
@@ -66,36 +67,27 @@ class IconCompiler
     }
 
     /**
-     * @param array<string, string> $icons
+     * @param  array<string, string>  $icons
      */
     public function saveCompiled(array $icons): void
     {
         $path = config('navigation.icons.compiled_path', storage_path('navigation/icons.php'));
         $directory = dirname($path);
 
-        if (!is_dir($directory)) {
-            if (!mkdir($directory, 0755, true) && !is_dir($directory)) {
+        if (! is_dir($directory)) {
+            if (! mkdir($directory, 0755, true) && ! is_dir($directory)) {
                 throw new RuntimeException(sprintf('Directory "%s" was not created', $directory));
             }
         }
 
-        $content = "<?php\n\nreturn " . var_export($icons, true) . ";\n";
+        $content = "<?php\n\nreturn ".var_export($icons, true).";\n";
         file_put_contents($path, $content);
 
         $this->compiledIcons = $icons;
     }
 
-    protected function loadCompiledIcons(): void
-    {
-        $path = config('navigation.icons.compiled_path', storage_path('navigation/icons.php'));
-
-        if (file_exists($path)) {
-            $this->compiledIcons = require $path;
-        }
-    }
-
     /**
-     * @param array<string, mixed> $config
+     * @param  array<string, mixed>  $config
      * @return array<int, string>
      */
     public function extractIconsFromConfig(array $config): array
@@ -109,11 +101,20 @@ class IconCompiler
         return array_unique($icons);
     }
 
+    private function loadCompiledIcons(): void
+    {
+        $path = config('navigation.icons.compiled_path', storage_path('navigation/icons.php'));
+
+        if (file_exists($path)) {
+            $this->compiledIcons = require $path;
+        }
+    }
+
     /**
-     * @param array<int, array<string, mixed>> $items
-     * @param array<int, mixed> $icons
+     * @param  array<int, array<string, mixed>>  $items
+     * @param  array<int, mixed>  $icons
      */
-    protected function extractIconsRecursive(array $items, array &$icons): void
+    private function extractIconsRecursive(array $items, array &$icons): void
     {
         foreach ($items as $item) {
             if (isset($item['icon'])) {
