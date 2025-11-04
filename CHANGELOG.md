@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.2](https://github.com/sysmatter/laravel-navigation/compare/v1.7.1...v1.7.2) (2025-11-04)
+
+
+### Bug Fixes
+
+* check for other types in validate nav command ([#28](https://github.com/sysmatter/laravel-navigation/issues/28)) ([13a6a35](https://github.com/sysmatter/laravel-navigation/commit/13a6a35b28b57da92dbd89c37d0d08c6966df7a7))
+
 ## [1.7.1](https://github.com/sysmatter/laravel-navigation/compare/v1.7.0...v1.7.1) (2025-11-04)
 
 
