@@ -5,3 +5,9 @@ parameters:
 			identifier: foreach.nonIterable
 			count: 1
 			path: src/Adapters/WayfinderAdapter.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<string, mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Commands/ValidateNavigationCommand.php
