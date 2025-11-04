@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SysMatter\Navigation\Commands;
 
 use Illuminate\Console\Command;
 use SysMatter\Navigation\IconCompiler;
 
-class CompileIconsCommand extends Command
+final class CompileIconsCommand extends Command
 {
     protected $signature = 'navigation:compile-icons';
+
     protected $description = 'Compile Lucide icons used in navigation to SVG strings';
 
     public function handle(): int
@@ -20,10 +23,11 @@ class CompileIconsCommand extends Command
 
         if (empty($icons)) {
             $this->warn('No icons found in navigation configuration.');
+
             return self::SUCCESS;
         }
 
-        $this->info('Found ' . count($icons) . ' unique icons.');
+        $this->info('Found '.count($icons).' unique icons.');
         $this->info('Compiling icons...');
 
         $bar = $this->output->createProgressBar(count($icons));
@@ -43,8 +47,8 @@ class CompileIconsCommand extends Command
 
         $compiler->saveCompiled($compiled);
 
-        $this->info('Successfully compiled ' . count($compiled) . ' icons.');
-        $this->info('Saved to: ' . config('navigation.icons.compiled_path', storage_path('navigation/icons.php')));
+        $this->info('Successfully compiled '.count($compiled).' icons.');
+        $this->info('Saved to: '.config('navigation.icons.compiled_path', storage_path('navigation/icons.php')));
 
         return self::SUCCESS;
     }

@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SysMatter\Navigation;
 
 use Illuminate\Support\ServiceProvider;
 use SysMatter\Navigation\Commands\CompileIconsCommand;
 use SysMatter\Navigation\Commands\ValidateNavigationCommand;
 
-class NavigationServiceProvider extends ServiceProvider
+final class NavigationServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/navigation.php',
+            __DIR__.'/../config/navigation.php',
             'navigation'
         );
 
@@ -26,7 +28,7 @@ class NavigationServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../config/navigation.php' => config_path('navigation.php'),
+                __DIR__.'/../config/navigation.php' => config_path('navigation.php'),
             ], 'navigation-config');
 
             $this->commands([

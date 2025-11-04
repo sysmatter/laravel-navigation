@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 
 it('validates navigation routes successfully', function () {
     config(['navigation' => $this->getTestConfig()]);
@@ -20,7 +21,7 @@ it('detects invalid routes', function () {
     config(['navigation' => $config]);
 
     $this->artisan('navigation:validate')
-        ->expectsOutput("✗ Found 1 invalid route(s):")
+        ->expectsOutput('✗ Found 1 invalid route(s):')
         ->assertExitCode(1);
 });
 

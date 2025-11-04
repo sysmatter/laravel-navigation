@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SysMatter\Navigation\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Route;
 
-class ValidateNavigationCommand extends Command
+final class ValidateNavigationCommand extends Command
 {
     protected $signature = 'navigation:validate';
+
     protected $description = 'Validate that all routes referenced in navigation config exist';
 
     public function handle(): int
@@ -22,10 +25,11 @@ class ValidateNavigationCommand extends Command
 
         if (empty($errors)) {
             $this->info('✓ All navigation routes are valid!');
+
             return self::SUCCESS;
         }
 
-        $this->error('✗ Found ' . count($errors) . ' invalid route(s):');
+        $this->error('✗ Found '.count($errors).' invalid route(s):');
         foreach ($errors as $error) {
             $this->error("  - {$error}");
         }
@@ -34,8 +38,8 @@ class ValidateNavigationCommand extends Command
     }
 
     /**
-     * @param array<int, array<string, mixed>> $items
-     * @param array<int, string> $errors
+     * @param  array<int, array<string, mixed>>  $items
+     * @param  array<int, string>  $errors
      */
     protected function validateItems(array $items, string $navName, array &$errors, string $path = ''): void
     {
@@ -43,7 +47,7 @@ class ValidateNavigationCommand extends Command
             $currentPath = $path ? "{$path} > {$item['label']}" : $item['label'];
 
             if (isset($item['route'])) {
-                if (!Route::has($item['route'])) {
+                if (! Route::has($item['route'])) {
                     $errors[] = "{$navName}: Route '{$item['route']}' not found (at: {$currentPath})";
                 }
             }

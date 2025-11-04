@@ -1,22 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SysMatter\Navigation\Adapters;
 
 use Illuminate\Support\Facades\Route;
 use Laravel\Wayfinder\WayfinderServiceProvider;
 use RuntimeException;
 
-class WayfinderAdapter
+final class WayfinderAdapter
 {
     /** @var array<string, string> */
-    protected array $iconMap = [];
+    private array $iconMap = [];
+
     /** @var array<string, string> */
-    protected array $methodMap = [];
+    private array $methodMap = [];
+
     /** @var array<string, array<string, mixed>> */
-    protected array $attributeMap = [];
+    private array $attributeMap = [];
+
     /** @var array<int, string> */
-    protected array $excludeRoutes = [];
-    protected ?string $parentRoute = null;
+    private array $excludeRoutes = [];
+
+    private ?string $parentRoute = null;
 
     /**
      * Create a navigation structure from Wayfinder routes
@@ -25,42 +31,47 @@ class WayfinderAdapter
     {
         $instance = new self();
         $instance->parentRoute = $parentRoute;
+
         return $instance;
     }
 
     /**
-     * @param array<string, string> $iconMap
+     * @param  array<string, string>  $iconMap
      */
     public function withIcons(array $iconMap): self
     {
         $this->iconMap = array_merge($this->iconMap, $iconMap);
+
         return $this;
     }
 
     /**
-     * @param array<string, string> $methodMap
+     * @param  array<string, string>  $methodMap
      */
     public function withMethods(array $methodMap): self
     {
         $this->methodMap = array_merge($this->methodMap, $methodMap);
+
         return $this;
     }
 
     /**
-     * @param array<string, array<string, mixed>> $attributeMap
+     * @param  array<string, array<string, mixed>>  $attributeMap
      */
     public function withAttributes(array $attributeMap): self
     {
         $this->attributeMap = array_merge($this->attributeMap, $attributeMap);
+
         return $this;
     }
 
     /**
-     * @param array<int, string> $routeNames
+     * @param  array<int, string>  $routeNames
      */
     public function exclude(array $routeNames): self
     {
         $this->excludeRoutes = array_merge($this->excludeRoutes, $routeNames);
+
         return $this;
     }
 
@@ -69,20 +80,35 @@ class WayfinderAdapter
      */
     public function toArray(): array
     {
-        if (!$this->isWayfinderInstalled()) {
+        if (! $this->isWayfinderInstalled()) {
             throw new RuntimeException(
                 'Laravel Wayfinder is not installed. Install it with: composer require laravel/wayfinder'
             );
         }
 
         $routes = $this->getWayfinderRoutes();
+
         return $this->buildNavigationStructure($routes);
+    }
+
+    /**
+     * Merge with existing navigation config
+     *
+     * @param  array<int, array<string, mixed>>  $existingConfig
+     * @return array<int, array<string, mixed>>
+     */
+    public function mergeWith(array $existingConfig): array
+    {
+        $wayfinderNav = $this->toArray();
+
+        // Merge the arrays, with existing config taking precedence
+        return array_merge($wayfinderNav, $existingConfig);
     }
 
     /**
      * Check if Wayfinder is installed
      */
-    protected function isWayfinderInstalled(): bool
+    private function isWayfinderInstalled(): bool
     {
         return class_exists(WayfinderServiceProvider::class);
     }
@@ -92,14 +118,14 @@ class WayfinderAdapter
      *
      * @return array<int, array<string, mixed>>
      */
-    protected function getWayfinderRoutes(): array
+    private function getWayfinderRoutes(): array
     {
         $navigationRoutes = [];
 
         foreach (Route::getRoutes() as $route) {
             $name = $route->getName();
 
-            if (!$name || in_array($name, $this->excludeRoutes)) {
+            if (! $name || in_array($name, $this->excludeRoutes, true)) {
                 continue;
             }
 
@@ -126,10 +152,10 @@ class WayfinderAdapter
     /**
      * Build hierarchical navigation structure
      *
-     * @param array<int, array<string, mixed>> $routes
+     * @param  array<int, array<string, mixed>>  $routes
      * @return array<int, array<string, mixed>>
      */
-    protected function buildNavigationStructure(array $routes): array
+    private function buildNavigationStructure(array $routes): array
     {
         $tree = [];
         $grouped = [];
@@ -138,7 +164,7 @@ class WayfinderAdapter
         foreach ($routes as $route) {
             $parent = $route['parent'] ?? $this->parentRoute;
 
-            if (!isset($grouped[$parent])) {
+            if (! isset($grouped[$parent])) {
                 $grouped[$parent] = [];
             }
 
@@ -158,11 +184,11 @@ class WayfinderAdapter
     /**
      * Build a single navigation item with children
      *
-     * @param array<string, mixed> $route
-     * @param array<string, array<int, array<string, mixed>>> $grouped
+     * @param  array<string, mixed>  $route
+     * @param  array<string, array<int, array<string, mixed>>>  $grouped
      * @return array<string, mixed>
      */
-    protected function buildNavigationItem(array $route, array $grouped): array
+    private function buildNavigationItem(array $route, array $grouped): array
     {
         $routeName = $route['name'];
 
@@ -200,7 +226,7 @@ class WayfinderAdapter
     /**
      * Generate a human-readable label from route name
      */
-    protected function generateLabelFromRoute(string $routeName): string
+    private function generateLabelFromRoute(string $routeName): string
     {
         $label = preg_replace('/\.(index|show|edit|create|store|update|destroy)$/', '', $routeName);
 
@@ -212,19 +238,5 @@ class WayfinderAdapter
         $label = str_replace(['.', '-', '_'], ' ', $label);
 
         return ucwords($label);
-    }
-
-    /**
-     * Merge with existing navigation config
-     *
-     * @param array<int, array<string, mixed>> $existingConfig
-     * @return array<int, array<string, mixed>>
-     */
-    public function mergeWith(array $existingConfig): array
-    {
-        $wayfinderNav = $this->toArray();
-
-        // Merge the arrays, with existing config taking precedence
-        return array_merge($wayfinderNav, $existingConfig);
     }
 }
