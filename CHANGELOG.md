@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.3](https://github.com/sysmatter/laravel-navigation/compare/v1.7.2...v1.7.3) (2025-11-05)
+
+
+### Bug Fixes
+
+* add type check for nav items to validate cmd ([#30](https://github.com/sysmatter/laravel-navigation/issues/30)) ([0bb5cc5](https://github.com/sysmatter/laravel-navigation/commit/0bb5cc54b427ca240edf20089ae70ec043296edd))
+
 ## [1.7.2](https://github.com/sysmatter/laravel-navigation/compare/v1.7.1...v1.7.2) (2025-11-04)
 
 
