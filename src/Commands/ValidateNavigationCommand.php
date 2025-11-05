@@ -9,115 +9,60 @@ use Illuminate\Support\Facades\Route;
 
 final class ValidateNavigationCommand extends Command
 {
-    protected $signature = 'navigation:validate {name? : The name of the navigation to validate}';
+    protected $signature = 'navigation:validate';
 
-    protected $description = 'Validate navigation configuration';
+    protected $description = 'Validate that all routes referenced in navigation config exist';
 
     public function handle(): int
     {
-        /** @var string $navigationName */
-        $navigationName = $this->argument('name');
+        $config = config('navigation.navigations', []);
+        $errors = [];
 
-        if ($navigationName) {
-            $items = config("navigation.menus.{$navigationName}");
-            if ($items === null) {
-                $this->error('No navigation configurations found.');
-
-                return self::FAILURE;
-            }
-            $navigations = [$navigationName => $items];
-        } else {
-            $navigations = config('navigation.menus', []);
+        foreach ($config as $navName => $items) {
+            $this->info("Validating navigation: {$navName}");
+            $this->validateItems($items, $navName, $errors);
         }
 
-        if (empty($navigations)) {
-            $this->error('No navigation configurations found.');
+        if (empty($errors)) {
+            $this->info('✓ All navigation routes are valid!');
 
-            return self::FAILURE;
+            return self::SUCCESS;
         }
 
-        $hasErrors = false;
-
-        foreach ($navigations as $name => $items) {
-            $this->info("Validating navigation: {$name}");
-
-            if (! is_array($items)) {
-                $this->error("  ✗ Navigation '{$name}' must be an array.");
-                $hasErrors = true;
-
-                continue;
-            }
-
-            $errors = $this->validateItems($items);
-            if (! empty($errors)) {
-                $hasErrors = true;
-                foreach ($errors as $error) {
-                    $this->error("  ✗ {$error}");
-                }
-            }
+        $this->error('✗ Found '.count($errors).' invalid route(s):');
+        foreach ($errors as $error) {
+            $this->error("  - {$error}");
         }
 
-        if ($hasErrors) {
-            $this->error('Navigation validation failed.');
-
-            return self::FAILURE;
-        }
-
-        $this->info('✓ All navigation routes are valid!');
-
-        return self::SUCCESS;
+        return self::FAILURE;
     }
 
     /**
-     * Validate navigation items recursively.
-     *
-     * @param  array<int, mixed>  $items
-     * @param  array<int, string>  $parentPath
-     * @return array<int, string>
+     * @param  array<int, array<string, mixed>>  $items
+     * @param  array<int, string>  $errors
      */
-    protected function validateItems(array $items, array $parentPath = []): array
+    protected function validateItems(array $items, string $navName, array &$errors, string $path = ''): void
     {
-        $errors = [];
-
         foreach ($items as $index => $item) {
-            if (! is_array($item)) {
-                $errors[] = "Item at index {$index} must be an array.";
-
-                continue;
-            }
-
-            // Check item type - separators and dividers don't need labels
+            // Skip separators and other non-link items
             $itemType = $item['type'] ?? 'link';
-
-            // Skip validation for separator types
             if (in_array($itemType, ['separator', 'divider', 'spacer', 'break'], true)) {
                 continue;
             }
 
-            // For non-separator items, validate required fields
-            if (! isset($item['label'])) {
-                $pathString = ! empty($parentPath) ? implode(' > ', $parentPath).' > ' : '';
-                $errors[] = $pathString."Item at index {$index} is missing 'label' field.";
+            // Now we can safely access label since we know it's not a separator
+            $label = $item['label'] ?? "Item at index {$index}";
+            $currentPath = $path ? "{$path} > {$label}" : $label;
 
-                continue;
+            if (isset($item['route'])) {
+                if (! Route::has($item['route'])) {
+                    $errors[] = "{$navName}: Route '{$item['route']}' not found (at: {$currentPath})";
+                }
             }
 
-            // Build current path for nested items
-            $currentPath = array_merge($parentPath, [$item['label']]);
-
-            // Validate route if specified
-            if (isset($item['route']) && ! Route::has($item['route'])) {
-                $pathString = implode(' > ', $currentPath);
-                $errors[] = "{$pathString} (route: {$item['route']})";
-            }
-
-            // Validate children recursively
             if (isset($item['children']) && is_array($item['children'])) {
-                $childErrors = $this->validateItems($item['children'], $currentPath);
-                $errors = array_merge($errors, $childErrors);
+                $this->validateItems($item['children'], $navName, $errors, $currentPath);
             }
         }
-
-        return $errors;
     }
 }
