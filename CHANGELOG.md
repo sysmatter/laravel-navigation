@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/sysmatter/laravel-navigation/compare/v1.7.4...v2.0.0) (2025-12-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* deprecate package in favor of offload-project/laravel-navigation ([#34](https://github.com/sysmatter/laravel-navigation/issues/34))
+
+### Miscellaneous Chores
+
+* deprecate package in favor of offload-project/laravel-navigation ([#34](https://github.com/sysmatter/laravel-navigation/issues/34)) ([c38e52f](https://github.com/sysmatter/laravel-navigation/commit/c38e52fb137c65971eb1cee2efaa5908e36d4da3))
+
 ## [1.7.4](https://github.com/sysmatter/laravel-navigation/compare/v1.7.3...v1.7.4) (2025-11-05)
 
 
