@@ -10,11 +10,10 @@
         "nav",
         "wayfinder"
     ],
+    "abandoned": "offload-project/laravel-navigation",
     "authors": [
         {
-            "name": "Shavonn Brown",
-            "email": "shavonn@sysmatter.com",
-            "role": "Developer"
+            "name": "SysMatter"
         }
     ],
     "scripts": {
@@ -27,9 +26,7 @@
         "pint": "vendor/bin/pint ./src ./tests ./config"
     },
     "require": {
-        "php": "^8.2",
-        "illuminate/support": "*",
-        "illuminate/routing": "*"
+        "offload-project/laravel-navigation": "^1.0"
     },
     "require-dev": {
         "larastan/larastan": "*",
@@ -41,9 +38,7 @@
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-phpunit": "^2.0",
-        "phpunit/phpunit": "^11.5",
-        "captainhook/captainhook": "^5.25",
-        "captainhook/plugin-composer": "^5.3"
+        "phpunit/phpunit": "^11.5"
     },
     "suggest": {
         "laravel/wayfinder": "Optional integration for automatic route-based navigation"
@@ -71,8 +66,7 @@
     "config": {
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "phpstan/extension-installer": true,
-            "captainhook/plugin-composer": true
+            "phpstan/extension-installer": true
         }
     }
 }
